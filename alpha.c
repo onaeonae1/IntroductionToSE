@@ -3,7 +3,7 @@
 #include<time.h>
 #include"linux_kbhit.h"
 #include"getch.h"
-#define COLOR_DEF 4
+#define COLOR_DEF 12
 #define COLOR_GRN 2
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
 typedef enum Boolean{
@@ -72,13 +72,6 @@ Bool buttonD_interface(char input){
 	}
 	return false;
 }
-Bool buttonNone_interface(char input){
-	if(input==NULL){
-		//printf("No Button Selected \n");
-		return true;
-	}
-	return false;
-}
 void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	//시간 초기화
 	CT.YY = 2019, CT.MT=1, CT.DD=1, CT.HH=0, CT.MM=0, CT.SS = 0, CT.MS=0;
@@ -90,7 +83,7 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	ST.lapTime.YY = 2019, ST.lapTime.MT = 1, ST.lapTime.DD = 1, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0;
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
-	MD.category_alpha = 0, MD.category_beta =0;
+	MD.category_alpha = 1, MD.category_beta =1;
 	Backlight = Backlight_Controller(COLOR_GRN);
 }
 int Button_Selector() {
@@ -132,7 +125,14 @@ int Button_Selector() {
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
 	return Selected_Button;
 }
+void Realtime_Manager(){
+	//CT를 동기화해줌
+}
+void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
+	MD = Mode_to_Change; //값 복사
+}
 void Button_Operator(int Selected_Button) {
+	printf("Selected Button : %d\n", Selected_Button);
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
 	int category_beta = MD.category_beta;
@@ -147,15 +147,15 @@ void Button_Operator(int Selected_Button) {
 		else { // 알람을 끔
 			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
 			AL.alarmTime.YY = 2019;
-			AL.alarmTime.MT = 1; 
-			AL.alarmTime.DD = 1; 
-			AL.alarmTime.HH = 0; 
-			AL.alarmTime.MM = 0; 
-			AL.alarmTime.SS = 0; 
+			AL.alarmTime.MT = 1;
+			AL.alarmTime.DD = 1;
+			AL.alarmTime.HH = 0;
+			AL.alarmTime.MM = 0;
+			AL.alarmTime.SS = 0;
 			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
 		}
 	}
-	else {	
+	else {
 		if (MD.category_alpha == 1) {
 			switch (MD.category_beta) {
 			case 1: // 1.1 timekeeping
@@ -464,23 +464,99 @@ void Button_Operator(int Selected_Button) {
 		}
 	}
 }
-void Realtime_Manager(){
-	//CT를 동기화해줌
-}
-void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
-	MD = Mode_to_Change; //값 복사
+void show(int alpha_cat, char list[7][3], int blink_location) {
+	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
+	//list는 7개의 위치에 해당하는 문자열입니다. 모두 두 글자로 이루어져 있습니다.
+	//blink_location은 깜빡일 화면의 위치를 뜻합니다.(0에서 7의 값을 가집니다)
+	//blink_location이 0일 경우는 모든 화면을 표시합니다. Panel_and_Speaker_Controller에서
+	//시간의 경과를 판별한 뒤, %연산(을 이용할 계획)을 이용하여 깜빡임을 구현합니다.(0과 위치를 적절히 전달)
+	//결론은, blink_location이 0이면 모든 위치의 화면을 표시,
+	//그렇지 않으면 지정된 위치(blink_location)의 화면을 표시하지 않습니다.
+	if(blink_location) {
+		list[blink_location - 1][0] = '0';
+		list[blink_location - 1][1] = '0';
+	}
+
+	if(alpha_cat == 1) {//Tikekeeping
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s : %s . %s          ##\n", list[4], list[5], list[6]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+	}
+	else if(alpha_cat == 2) {//Stopwatch
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s:%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s\'  %s\"  %s          ##\n", list[4], list[5], list[6]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+	}
+	else if(alpha_cat == 3) {//Alarm
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s : %s               ##\n", list[4], list[5]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+	}
 }
 
 void Panel_and_Speaker_Controller(){
+	int flag1 = MD.category_alpha;
+	int flag2 = MD.category_beta;
+	char list[7][3]; // configure된 값들을 저장
+	int blink_location;
+		// 깜빡일 위치를 저장
+		//만약 깜빡임을 구현하기 위해 깜빡일 위치를
+		//표시하여야 할 경우는 0을 저장한다
 
+
+	//if문들로 각각에 맞게 configure
+	//configure 된 값들은 모두 2글자의 문자열이다 + 깜빡일 위치
+	switch(flag1) {
+		case 1: // Timekeeping 모드
+
+			break;
+		case 2: // Stopwatch 모드
+
+			break;
+		case 3: // Alarm 모드
+
+			break;
+		default: // 엄밀한 명세에 의하면 없어도 되는 코드
+
+			break;
+	}
+
+
+	//show()를 구현하여 configure된 값들을 표시
+	show(flag1, list, blink_location);
+
+	return;
 }
 int Backlight_Controller(int backlight){ //색 변경
+	//backlight가 COLOR_DEF라면 -> COLOR_GRN으로 변경
+	//backlight가 COLOR_GRN라면 -> COLOR_DEF로 변경
+	//2가지밖에 없고 이를 번갈아 가며 사용하는 형태
 	if(backlight==COLOR_DEF){
 		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_GRN);
+		printf("Color Change to COLOR_GREEN \n");
 		return COLOR_GRN;
 	}
 	else{
 		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_DEF);
+		printf("Color_Change to COLOR_RED \n");
 		return COLOR_DEF;
 	}
 }
@@ -491,6 +567,8 @@ int main(){
 	while(true){
 		Selected_Button = Button_Selector();
 		Button_Operator(Selected_Button);
+		Realtime_Manager();
+		Panel_and_Speaker_Controller();
 	}
 	return 0;
 }
