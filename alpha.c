@@ -1,4 +1,7 @@
 #include<stdio.h>
+#include<windows.h>
+#define COLOR_DEF 4
+#define COLOR_GRN 2
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
 typedef enum Boolean{
 	false=0,
@@ -30,6 +33,7 @@ typedef struct StopWatch{
 //Data Store들 선언하기
 mode MD; //모드
 time CT; //현재 시간
+int Backlight; //글자색
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
@@ -68,47 +72,52 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 0, MD.category_beta =0;
+	//글자색 초기화
+	Backlight = Backlight_Controller(COLOR_GRN);
 }
 int Button_Selector(){
-	bool alpha = false;
+	bool flag = false;
 	int Selected_Button =0 ;
 	char temp;
 	//일정 기간 wait하고. -> 이 부분은 잠재적 수정 사항이다.
-	while(alpha==false){
+	while(flag==false){
 		scanf("%c", &temp);
 		getchar(); //버퍼 비우기
 		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
-		alpha = buttonD_interface(temp);
-		if(alpha==true){
+		flag = buttonD_interface(temp);
+		if(flag==true){
 			Selected_Button = 4;
 			break;
 		}
-		alpha = buttonC_interface(temp);
-		if(alpha==true){
+		flag = buttonC_interface(temp);
+		if(flag==true){
 			Selected_Button = 3;
 			break;
 		}
-		alpha=  buttonB_interface(temp);
-		if(temp=='B'){
+		flag=  buttonB_interface(temp);
+		if(flag==true){
 			Selected_Button  = 2;
 			break;
 		}
-		alpha = buttonA_interface(temp);
-		if(temp=='A'){
+		flag = buttonA_interface(temp);
+		if(flag==true){
 			Selected_Button = 1;
 			break;
 		}
 	}
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
+	printf("SELECTOR OFF\n");
 	return Selected_Button;
 }
 void Realtime_Manager(){
-
+	//CT를 동기화해줌
 }
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
 }
 void Button_Operator(int Selected_Button){ //노가다로 짤 거 같은데 좀 더 고려 필요
+	printf("Selected Button is : %d\n",Selected_Button);
+	/*
 	//모드 읽기
 	if(MD.alarm_buzzing==true){ //알람 울리기
 
@@ -116,30 +125,42 @@ void Button_Operator(int Selected_Button){ //노가다로 짤 거 같은데 좀 
 	else{
 
 	}
+	*/
 	//그 다음에 버튼 읽기
-	if(Selected_Button== '1'){ //A
+	if(Selected_Button== 1){ //A
 
 	}
-	if(Selected_Button == '2'){ //B
+	if(Selected_Button == 2){ //B
 
 	}
-	if(Selected_Button == '3'){ //C
+	if(Selected_Button == 3){ //C
 
 	}
-	if(Selected_Button =='4'){ //D
-
+	if(Selected_Button ==4){ //D
+		printf("Button D Operated \n");
+		Backlight = Backlight_Controller(Backlight);
 	}
 }
 void Panel_and_Speaker_Controller(){
 
 }
-void Backlight_Controller(){
-
+int Backlight_Controller(int backlight){ //색 변경
+	if(backlight==COLOR_DEF){
+		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_GRN);
+		return COLOR_GRN;
+	}
+	else{
+		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_DEF);
+		return COLOR_DEF;
+	}
 }
 int main(){
 	init();
+	//테스트 구간. 아직 의미 X
 	int Selected_Button= 0;
-	Selected_Button = Button_Selector();
-	Button_Operator(Selected_Button);
+	while(true){
+		Selected_Button = Button_Selector();
+		Button_Operator(Selected_Button);
+	}
 	return 0;
 }
