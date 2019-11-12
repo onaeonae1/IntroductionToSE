@@ -25,16 +25,20 @@ typedef struct Time{
 	int SS; //초
 	int MS; //ms
 }Time;
-typedef struct Alarm{ //시작 시간
+typedef struct Alarm{ //알람 시간을 나타낸다
+	Time alarmTime;
+}alm;
+typedef struct StopWatch{ //스톱워치시각과 lap시각
+	Time stopwatchTime;
 	Time startTime;
-}alarm;
-typedef struct StopWatch{
-
+	Time lapTime;
 }stopwatch;
 //Data Store들 선언하기
 mode MD; //모드
 Time CT; //현재 시간
 int Backlight; //글자색
+alm AL; //알람시각
+stopwatch ST; //스톱워치
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
@@ -70,6 +74,12 @@ void readmode(){ // 잠재적 수정사항
 void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	//시간 초기화
 	CT.YY = 2019, CT.MT=1, CT.DD=1, CT.HH=0, CT.MM=0, CT.SS = 0, CT.MS=0;
+	//알람 초기화
+	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0;
+	//스톱워치 
+	ST.stopwatchTime.YY = 2019, ST.stopwatchTime.MT = 1, ST.stopwatchTime.DD = 1, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0;
+	ST.startTime.YY = 2019, ST.startTime.MT = 1, ST.startTime.DD = 1, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0;
+	ST.lapTime.YY = 2019, ST.lapTime.MT = 1, ST.lapTime.DD = 1, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0;
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 0, MD.category_beta =0;
