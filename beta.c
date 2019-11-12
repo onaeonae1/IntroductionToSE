@@ -116,22 +116,10 @@ int Button_Selector(){
 				isD = buttonD_interface(temp);
 			default:
 		}
-		if(isD) {
-			Selected_Button = 4;
-			continue;
-		}
-		if(isC) {
-			Selected_Button = 3;
-			continue;
-		}
-		if(isB) {
-			Selected_Button = 2;
-			continue;
-		}
-		if(isA) {
-			Selected_Button = 1;
-			continue;
-		}
+		if(isD) Selected_Button = 4;
+		else if(isC) Selected_Button = 3;
+		else if(isB) Selected_Button = 2;
+		else if(isA) Selected_Button = 1;
 		/*
 		alpha = buttonD_interface(temp);
 		if(alpha==True){
