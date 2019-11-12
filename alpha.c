@@ -174,30 +174,325 @@ void Realtime_Manager(){
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
 }
-void Button_Operator(int Selected_Button){ //노가다로 짤 거 같은데 좀 더 고려 필요
-	printf("Selected Button is : %d\n",Selected_Button);
-	/*
-	//모드 읽기
-	if(MD.alarm_buzzing==true){ //알람 울리기
+void Button_Operator(int Selected_Button) {
+	Bool alarm_buzzing = MD.alarm_buzzing;
+	int category_alpha = MD.category_alpha;
+	int category_beta = MD.category_beta;
+	Bool stopwatch_indicator = MD.stopwatch_indicator;
+	Bool alarm_indicator = MD.alarm_indicator;
 
+	// 모드의 대분류(category_alpha)-소분류(category_beta)-Selected_Button 순서로 작성
+	if (alarm_buzzing) { //알람 울리기가 최우선
+		// if (Selected_Button == 0){}
+		// else {}
 	}
-	else{
-
-	}
-	*/
-	//그 다음에 버튼 읽기
-	if(Selected_Button== 1){ //A
-
-	}
-	if(Selected_Button == 2){ //B
-
-	}
-	if(Selected_Button == 3){ //C
-
-	}
-	if(Selected_Button ==4){ //D
-		printf("Button D Operated \n");
-		Backlight = Backlight_Controller(Backlight);
+	else {	
+		if (MD.category_alpha == 1) {
+			switch (MD.category_beta) {
+			case 1: // 1.1 timekeeping
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 2;
+					break;
+				case 2: // B
+					break;
+				case 3: // C
+					MD.category_alpha = 2;
+					MD.category_beta = 1;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 2: // 1.2 timekeeping_change_sec
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.SS == 59) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.SS == 0;
+					}
+					else CT.SS++; // 현재 시각 초 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 3;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 3: // 1.3 timekeeping_change_hr
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.HH == 23) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.HH == 0;
+					}
+					else CT.HH++; // 현재 시각 시간 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 4;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 4: // 1.4 timekeeping_change_min
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.MM == 59) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.MM = 0;
+					}
+					else CT.MM++; // 현재 시각 분 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 5;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 5: // 1.5 timekeeping_change_yr
+				switch(Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.YY == 2099) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.YY = 2019;
+					}
+					else CT.YY++; // 현재 시각 년 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 6;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 6: // 1.6 timekeeping_change_mnth
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.MT == 12) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.MT = 1;
+					}
+					else CT.MT++; // 현재 시각 달 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 7;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 7: // 1.7 timekeeping_change_day
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					// 최대치가 된 상태에서 다시 입력하면 최저값으로
+					switch (CT.MT) {
+					// 한 달에 31일이 있는 경우
+					case 1:
+					case 3:
+					case 5:
+					case 7:
+					case 8:
+					case 10:
+					case 12:
+						if (CT.DD == 31) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+							CT.DD = 1;
+						}
+						else CT.DD++;
+						break;
+					// 한 달에 28일이 있는 경우(윤달은 제외)
+					case 2:
+						if (CT.DD == 28) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+							CT.DD = 1;
+						}
+						else CT.DD++;
+						break;
+					// 한 달에 30일이 있는 경우
+					case 4:
+					case 6:
+					case 9:
+					case 11:
+						if (CT.DD == 30) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+							CT.DD = 1;
+						}
+						else CT.DD++;
+						break;
+					}
+					break;
+				case 3: // C
+					MD.category_beta = 2;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			default: break;
+			}
+		}
+		else if (MD.category_alpha == 2) {
+			switch (MD.category_beta) {
+			case 1: // 2.1 stopwatch
+				switch (Selected_Button) {
+				case 1: // A
+					if (stopwatch_indicator == 0) {
+						// ST.stopwatchTime = 0을 해줌
+						ST.stopwatchTime.YY = 0;
+						ST.stopwatchTime.MT = 0;
+						ST.stopwatchTime.DD = 0;
+						ST.stopwatchTime.HH = 0;
+						ST.stopwatchTime.MM= 0;
+						ST.stopwatchTime.SS = 0;
+						ST.stopwatchTime.MS = 0;
+						// ST.startTime = 0을 해줌
+						ST.startTime.YY = 0;
+						ST.startTime.MT = 0;
+						ST.startTime.DD = 0;
+						ST.startTime.HH = 0;
+						ST.startTime.MM = 0;
+						ST.startTime.SS = 0;
+						ST.startTime.MS = 0;
+					}
+					else if (stopwatch_indicator == 1) {
+						ST.lapTime = ST.stopwatchTime;
+						MD.category_alpha = 2;
+						MD.category_beta = 2;
+					}
+					break;
+				case 2: // B
+					if (stopwatch_indicator == 0) {
+						MD.stopwatch_indicator = 1;
+						// ST.stopwatchTime += ST.startTime을 해줌
+						ST.stopwatchTime.YY += ST.startTime.YY;
+						ST.stopwatchTime.MT += ST.startTime.MT;
+						ST.stopwatchTime.DD += ST.startTime.DD;
+						ST.stopwatchTime.HH += ST.startTime.HH;
+						ST.stopwatchTime.MM += ST.startTime.MM;
+						ST.stopwatchTime.SS += ST.startTime.SS;
+						ST.stopwatchTime.MS += ST.startTime.MS;
+						ST.stopwatchTime = CT;
+					}
+					else if (stopwatch_indicator == 1) {
+						MD.stopwatch_indicator = 0;
+						// ST.startTime += CT - ST.startTime;
+						ST.startTime.YY += (CT.YY - ST.startTime.YY);
+						ST.startTime.MT += (CT.MT - ST.startTime.MT);
+						ST.startTime.DD += (CT.DD - ST.startTime.DD);
+						ST.startTime.HH += (CT.HH - ST.startTime.HH);
+						ST.startTime.MM += (CT.MM - ST.startTime.MM);
+						ST.startTime.SS += (CT.SS - ST.startTime.SS);
+						ST.startTime.MS += (CT.MS - ST.startTime.MS);
+					}
+					break;
+				case 3: // C
+					MD.category_alpha = 3;
+					MD.category_beta = 1;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 2: // 2.2 stopwatch_LAP
+				switch (Selected_Button) {
+				case 1: // A
+					break;
+				case 2: // B
+					MD.category_beta = 1;
+					break;
+				case 3: // C
+					MD.category_alpha = 3;
+					MD.category_beta = 1;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			default: break;
+			}
+		}
+		else { // MD.category_alpha == 3
+			switch (MD.category_beta) {
+			case 1: // 3.1 alarm
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 2;
+					break;
+				case 2: // B
+					break;
+				case 3: // C
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 2: // 3.2 alarm_change_hr
+				switch (Selected_Button) {
+				case 1: // A
+					break;
+				case 2: // B
+					AL.alarmTime.HH++; // 알람 시작 시간 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 3;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+			case 3: // alarm_change_min
+				switch (Selected_Button) {
+				case 1: // A
+					break;
+				case 2: // B
+					AL.alarmTime.MM++; // 알람 시작 분 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 2;
+					break;
+				case 4: // D
+					Backlight = Backlight_Controller(COLOR_DEF);
+					break;
+				default: break;
+				}
+				break;
+ 			}
+		}
 	}
 }
 void Panel_and_Speaker_Controller(){
