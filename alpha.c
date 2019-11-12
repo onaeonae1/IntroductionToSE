@@ -2,6 +2,7 @@
 #include<windows.h>
 #include<time.h>
 #include"linux_kbhit.h"
+#include"getch.h"
 #define COLOR_DEF 4
 #define COLOR_GRN 2
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
@@ -37,42 +38,46 @@ typedef struct StopWatch{
 
 }stopwatch;
 //Data Store들 선언하기
-alm AL;
-stopwatch ST;
+alm AL; //알람
+stopwatch ST; //스톱워치
 mode MD; //모드
 Time CT; //현재 시간
 int Backlight; //글자색
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
-		printf("Button A Selected \n");
+		//printf("Button A Selected \n");
 		return true;
 	}
 	return false;
 }
 Bool buttonB_interface(char input){
 	if(input=='b' || input=='B'){
-		printf("Button B Selected \n");
+		//printf("Button B Selected \n");
 		return true;
 	}
 	return false;
 }
 Bool buttonC_interface(char input){
 	if(input=='c' || input=='C'){
-		printf("Button C Selected \n");
+		//printf("Button C Selected \n");
 		return true;
 	}
 	return false;
 }
 Bool buttonD_interface(char input){
 	if(input=='d' || input=='D'){
-		printf("Button D Selected \n");
+		//printf("Button D Selected \n");
 		return true;
 	}
 	return false;
 }
-void readmode(){ // 잠재적 수정사항
-
+Bool buttonNone_interface(char input){
+	if(input==NULL){
+		//printf("No Button Selected \n");
+		return true;
+	}
+	return false;
 }
 void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	//시간 초기화
@@ -88,74 +93,35 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	MD.category_alpha = 0, MD.category_beta =0;
 	Backlight = Backlight_Controller(COLOR_GRN);
 }
-int Button_Selector(){
-	Bool flag = false;
-	int Selected_Button =0 ;
-	char temp='0';
-	//일정 기간 wait하고. -> 이 부분은 잠재적 수정 사항이다.
-	Sleep(1);
+int Button_Selector() {
+	Sleep(1000);
+	int Selected_Button = 0;
+	Bool isA = false, isB = false, isC = false, isD = false;
 	int value=-1;
-	value=linux_kbhit();
-	while(value!=-1){
-		//int value = linux_kbhit(); //하나 받기
-		printf("%d\n", value);
-		if((value>=97 && value<=100)|| (value>=65 && value<=68)){ //버튼이 눌렸는지만 판별
-			temp = value;
-		}
-		if(temp=='0'){
-			printf("No Button Selected \n");
-			break;
-		}
-		printf("%c\n", temp);
-		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
-		flag = buttonD_interface(temp);
-		if(flag==true){
+	while (value = linux_kbhit()) { //no button인 경우 이곳을 거치지 않는다.
+		isA = false; isB = false; isC = false; isD = false;
+		char temp = getch();
+		isD = buttonD_interface(temp);
+		if(isD){
 			Selected_Button = 4;
 			break;
 		}
-		flag = buttonC_interface(temp);
-		if(flag==true){
+		isC = buttonC_interface(temp);
+		if(isC){
 			Selected_Button = 3;
 			break;
 		}
-		flag=  buttonB_interface(temp);
-		if(flag==true){
-			Selected_Button  = 2;
+		isB = buttonB_interface(temp);
+		if(isB){
+			Selected_Button = 2;
 			break;
 		}
-		flag = buttonA_interface(temp);
-		if(flag==true){
-			Selected_Button = 1;
+		isA = buttonA_interface(temp);
+		if(isA){
+			Selected_Button  =1;
 			break;
 		}
-	}
-	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
-	printf("SELECTOR OFF\n");
-	return Selected_Button;
-}
-/*
-int Button_Selector() {
-
-	Sleep(1000);
-	int Selected_Button = 0;
-
-	Bool isA = false, isB = false, isC = false, isD = false;
-
-	while (kbhit()) {
-		isA = false; isB = false; isC = false; isD = false;
-		char temp = (char)getch();
-		//scanf("%c", &temp);
-		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
-		switch (Selected_Button) { // break가 없어서 우선순위가 높은 버튼만 모두 확인한다.
-		case 0:
-			isA = buttonA_interface(temp);
-		case 1:
-			isB = buttonB_interface(temp);
-		case 2:
-			isC = buttonC_interface(temp);
-		case 3:
-			isD = buttonD_interface(temp);
-		default:
+		else{
 			break;
 		}
 		if (isD) Selected_Button = 4;
@@ -164,10 +130,8 @@ int Button_Selector() {
 		else if (isA) Selected_Button = 1;
 	}
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
-
 	return Selected_Button;
 }
-*/
 void Realtime_Manager(){
 	//CT를 동기화해줌
 }
@@ -189,15 +153,15 @@ void Button_Operator(int Selected_Button) {
 		else { // 알람을 끔
 			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
 			AL.alarmTime.YY = 2019;
-			AL.alarmTime.MT = 1; 
-			AL.alarmTime.DD = 1; 
-			AL.alarmTime.HH = 0; 
-			AL.alarmTime.MM = 0; 
-			AL.alarmTime.SS = 0; 
+			AL.alarmTime.MT = 1;
+			AL.alarmTime.DD = 1;
+			AL.alarmTime.HH = 0;
+			AL.alarmTime.MM = 0;
+			AL.alarmTime.SS = 0;
 			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
 		}
 	}
-	else {	
+	else {
 		if (MD.category_alpha == 1) {
 			switch (MD.category_beta) {
 			case 1: // 1.1 timekeeping
@@ -507,8 +471,7 @@ void Button_Operator(int Selected_Button) {
 	}
 }
 void Panel_and_Speaker_Controller(){
-	int flag1 MD.category_alpha;
-	int flag2 MD.category_beta;
+
 }
 int Backlight_Controller(int backlight){ //색 변경
 	if(backlight==COLOR_DEF){
@@ -524,7 +487,6 @@ int main(){
 	init();
 	//테스트 구간. 아직 의미 X
 	int Selected_Button= 0;
-	int previous_key = 0;
 	while(true){
 		Selected_Button = Button_Selector();
 		Button_Operator(Selected_Button);
