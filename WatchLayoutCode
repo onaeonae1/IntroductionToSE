@@ -1,0 +1,52 @@
+#include <stdio.h>
+
+int main() {
+	int month = 6, date = 30, hour = 9, minute = 58, sec = 3;
+	char day[3] =  "SU";
+	char alarm = 'A';
+
+	//Tikekeeping
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###      %s       %02d/%02d      ###\n", day, month, date);
+	printf("##                                ##\n");
+	printf("##     %c                          ##\n", alarm);
+	printf("##          %02d : %02d . %02d          ##\n", hour, minute, sec);
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
+
+	printf("\n\n");
+
+	char stopwatch[3] = "ST";
+	int stopwatchM = 5, stopwatchS = 54, stopwatchMS = 4;
+
+	//Stopwatch
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###      %s       %02d/%02d      ###\n", stopwatch, hour, minute);
+	printf("##                                ##\n");
+	printf("##     %c                          ##\n", alarm);
+	printf("##          %02d : %02d . %02d          ##\n", stopwatchM, stopwatchS, stopwatchMS);
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
+
+	printf("\n\n");
+
+	char alarmMode[3] = "AL";
+	int alarmH = 12, alarmM = 0;
+
+	//Alarm
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###      %s       %02d/%02d      ###\n", alarmMode, month, date);
+	printf("##                                ##\n");
+	printf("##     %c                          ##\n", alarm);
+	printf("##          %02d : %02d               ##\n", alarmH, alarmM);
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
+
+	return 0;
+}
