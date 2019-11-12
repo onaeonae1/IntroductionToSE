@@ -132,7 +132,6 @@ void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
 }
 void Button_Operator(int Selected_Button) {
-	printf("Selected Button : %d\n", Selected_Button);
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
 	int category_beta = MD.category_beta;
@@ -236,7 +235,7 @@ void Button_Operator(int Selected_Button) {
 				}
 				break;
 			case 5: // 1.5 timekeeping_change_yr
-				switch(Selected_Button) {
+				switch (Selected_Button) {
 				case 1: // A
 					MD.category_beta = 1;
 					break;
@@ -283,7 +282,7 @@ void Button_Operator(int Selected_Button) {
 				case 2: // B
 					// 최대치가 된 상태에서 다시 입력하면 최저값으로
 					switch (CT.MT) {
-					// 한 달에 31일이 있는 경우
+						// 한 달에 31일이 있는 경우
 					case 1:
 					case 3:
 					case 5:
@@ -296,14 +295,14 @@ void Button_Operator(int Selected_Button) {
 						}
 						else CT.DD++;
 						break;
-					// 한 달에 28일이 있는 경우(윤달은 제외)
+						// 한 달에 28일이 있는 경우(윤달은 제외)
 					case 2:
 						if (CT.DD == 28) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
 							CT.DD = 1;
 						}
 						else CT.DD++;
 						break;
-					// 한 달에 30일이 있는 경우
+						// 한 달에 30일이 있는 경우
 					case 4:
 					case 6:
 					case 9:
@@ -371,14 +370,14 @@ void Button_Operator(int Selected_Button) {
 					}
 					else if (stopwatch_indicator == 1) {
 						MD.stopwatch_indicator = 0;
-						// ST.startTime += CT - ST.startTime;
-						ST.startTime.YY += (CT.YY - ST.startTime.YY);
-						ST.startTime.MT += (CT.MT - ST.startTime.MT);
-						ST.startTime.DD += (CT.DD - ST.startTime.DD);
-						ST.startTime.HH += (CT.HH - ST.startTime.HH);
-						ST.startTime.MM += (CT.MM - ST.startTime.MM);
-						ST.startTime.SS += (CT.SS - ST.startTime.SS);
-						ST.startTime.MS += (CT.MS - ST.startTime.MS);
+						// ST.lapTime += CT - ST.startTime;
+						ST.lapTime.YY += (CT.YY - ST.startTime.YY);
+						ST.lapTime.MT += (CT.MT - ST.startTime.MT);
+						ST.lapTime.DD += (CT.DD - ST.startTime.DD);
+						ST.lapTime.HH += (CT.HH - ST.startTime.HH);
+						ST.lapTime.MM += (CT.MM - ST.startTime.MM);
+						ST.lapTime.SS += (CT.SS - ST.startTime.SS);
+						ST.lapTime.MS += (CT.MS - ST.startTime.MS);
 					}
 					break;
 				case 3: // C
@@ -460,7 +459,7 @@ void Button_Operator(int Selected_Button) {
 				default: break;
 				}
 				break;
- 			}
+			}
 		}
 	}
 }
