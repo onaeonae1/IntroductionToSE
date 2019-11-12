@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<windows.h>
 #include<time.h>
+#include"linux_kbhit.h"
 #define COLOR_DEF 4
 #define COLOR_GRN 2
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
@@ -25,20 +26,22 @@ typedef struct Time{
 	int SS; //초
 	int MS; //ms
 }Time;
-typedef struct Alarm{ //알람 시간을 나타낸다
+typedef struct Alarm{ //시작 시간
 	Time alarmTime;
 }alm;
-typedef struct StopWatch{ //스톱워치시각과 lap시각
+typedef struct StopWatch{
+	//LapTime은 StartTime을 기반으로 업데이트 된다.
 	Time stopwatchTime;
 	Time startTime;
 	Time lapTime;
+
 }stopwatch;
 //Data Store들 선언하기
+alm AL;
+stopwatch ST;
 mode MD; //모드
 Time CT; //현재 시간
 int Backlight; //글자색
-alm AL; //알람시각
-stopwatch ST; //스톱워치
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
@@ -76,24 +79,34 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	CT.YY = 2019, CT.MT=1, CT.DD=1, CT.HH=0, CT.MM=0, CT.SS = 0, CT.MS=0;
 	//알람 초기화
 	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0;
-	//스톱워치 
+	//스톱워치
 	ST.stopwatchTime.YY = 2019, ST.stopwatchTime.MT = 1, ST.stopwatchTime.DD = 1, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0;
 	ST.startTime.YY = 2019, ST.startTime.MT = 1, ST.startTime.DD = 1, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0;
 	ST.lapTime.YY = 2019, ST.lapTime.MT = 1, ST.lapTime.DD = 1, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0;
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 0, MD.category_beta =0;
-	//글자색 초기화
 	Backlight = Backlight_Controller(COLOR_GRN);
 }
 int Button_Selector(){
 	Bool flag = false;
 	int Selected_Button =0 ;
-	char temp;
+	char temp='0';
 	//일정 기간 wait하고. -> 이 부분은 잠재적 수정 사항이다.
-	while(flag==false){
-		scanf("%c", &temp);
-		getchar(); //버퍼 비우기
+	Sleep(1);
+	int value=-1;
+	value=linux_kbhit();
+	while(value!=-1){
+		//int value = linux_kbhit(); //하나 받기
+		printf("%d\n", value);
+		if((value>=97 && value<=100)|| (value>=65 && value<=68)){ //버튼이 눌렸는지만 판별
+			temp = value;
+		}
+		if(temp=='0'){
+			printf("No Button Selected \n");
+			break;
+		}
+		printf("%c\n", temp);
 		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
 		flag = buttonD_interface(temp);
 		if(flag==true){
@@ -169,6 +182,7 @@ int main(){
 	init();
 	//테스트 구간. 아직 의미 X
 	int Selected_Button= 0;
+	int previous_key = 0;
 	while(true){
 		Selected_Button = Button_Selector();
 		Button_Operator(Selected_Button);
