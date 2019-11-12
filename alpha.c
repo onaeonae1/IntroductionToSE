@@ -183,8 +183,19 @@ void Button_Operator(int Selected_Button) {
 
 	// 모드의 대분류(category_alpha)-소분류(category_beta)-Selected_Button 순서로 작성
 	if (alarm_buzzing) { //알람 울리기가 최우선
-		// if (Selected_Button == 0){}
-		// else {}
+		if (Selected_Button == 0) {
+			// 버튼이 눌리지 않으면 5초 동안 가만히 있다가 스스로 종료
+		}
+		else { // 알람을 끔
+			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
+			AL.alarmTime.YY = 2019;
+			AL.alarmTime.MT = 1; 
+			AL.alarmTime.DD = 1; 
+			AL.alarmTime.HH = 0; 
+			AL.alarmTime.MM = 0; 
+			AL.alarmTime.SS = 0; 
+			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
+		}
 	}
 	else {	
 		if (MD.category_alpha == 1) {
