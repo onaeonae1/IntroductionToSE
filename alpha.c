@@ -132,12 +132,6 @@ int Button_Selector() {
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
 	return Selected_Button;
 }
-void Realtime_Manager(){
-	//CT를 동기화해줌
-}
-void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
-	MD = Mode_to_Change; //값 복사
-}
 void Button_Operator(int Selected_Button) {
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
@@ -153,15 +147,15 @@ void Button_Operator(int Selected_Button) {
 		else { // 알람을 끔
 			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
 			AL.alarmTime.YY = 2019;
-			AL.alarmTime.MT = 1;
-			AL.alarmTime.DD = 1;
-			AL.alarmTime.HH = 0;
-			AL.alarmTime.MM = 0;
-			AL.alarmTime.SS = 0;
+			AL.alarmTime.MT = 1; 
+			AL.alarmTime.DD = 1; 
+			AL.alarmTime.HH = 0; 
+			AL.alarmTime.MM = 0; 
+			AL.alarmTime.SS = 0; 
 			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
 		}
 	}
-	else {
+	else {	
 		if (MD.category_alpha == 1) {
 			switch (MD.category_beta) {
 			case 1: // 1.1 timekeeping
@@ -176,7 +170,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -196,7 +190,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -216,7 +210,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 4;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -236,7 +230,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 5;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -256,7 +250,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 6;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -276,7 +270,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 7;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -325,7 +319,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -344,7 +338,7 @@ void Button_Operator(int Selected_Button) {
 						ST.stopwatchTime.MT = 0;
 						ST.stopwatchTime.DD = 0;
 						ST.stopwatchTime.HH = 0;
-						ST.stopwatchTime.MM= 0;
+						ST.stopwatchTime.MM = 0;
 						ST.stopwatchTime.SS = 0;
 						ST.stopwatchTime.MS = 0;
 						// ST.startTime = 0을 해줌
@@ -392,7 +386,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -409,7 +403,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -429,7 +423,7 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -445,7 +439,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -461,7 +455,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D
-					Backlight = Backlight_Controller(COLOR_DEF);
+					Backlight = Backlight_Controller(Backlight);
 					break;
 				default: break;
 				}
@@ -470,6 +464,13 @@ void Button_Operator(int Selected_Button) {
 		}
 	}
 }
+void Realtime_Manager(){
+	//CT를 동기화해줌
+}
+void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
+	MD = Mode_to_Change; //값 복사
+}
+
 void Panel_and_Speaker_Controller(){
 
 }
