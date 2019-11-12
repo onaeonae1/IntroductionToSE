@@ -2,6 +2,8 @@
 #include<time.h>
 #include<stdlib.h>
 #include<sys/timeb.h>
+#include <conio.h>
+#include <Windows.h>
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
 typedef enum Boolean{
 	False=0,
@@ -79,21 +81,58 @@ int Button_Selector(){
 	int msend;
 	ftime(&startTime);
 	msstart = startTime.millitm;
-	while (true) {
+	
+	Sleep(1000);
+	/*while (true) {
 		ftime(&nowTime);
 		if (nowTime.millitm - startTime.millitm > 1) {
 			break;
 		}
 		wait()
 	}
+	*/
 	int Selected_Button = 0;
+	
 	/*
 	Bool alpha = False;
 	char temp;
 	//일정 기간 wait하고. -> 이 부분은 잠재적 수정 사항이다.
-	while(alpha==False){
-		scanf("%c", &temp);
+	*/
+	Bool isA = False, isB = False, icC = False, isD = False;
+	
+	while(kbhit()){
+		isA = False; isB = False; isC = False; isD = False;
+		temp = getch();
+		//scanf("%c", &temp);
 		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
+		switch(Selected_Button) {
+			case 0:
+				isA = buttonA_interface(temp);
+			case 1:
+				isB = buttonB_interface(temp);
+			case 2:
+				isC = buttonC_interface(temp);
+			case 3:
+				isD = buttonD_interface(temp);
+			default:
+		}
+		if(isD) {
+			Selected_Button = 4;
+			continue;
+		}
+		if(isC) {
+			Selected_Button = 3;
+			continue;
+		}
+		if(isB) {
+			Selected_Button = 2;
+			continue;
+		}
+		if(isA) {
+			Selected_Button = 1;
+			continue;
+		}
+		/*
 		alpha = buttonD_interface(temp);
 		if(alpha==True){
 			Selected_Button = 4;
@@ -114,9 +153,10 @@ int Button_Selector(){
 			Selected_Button = 1;
 			break;
 		}
+		*/
 	}
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
-	*/
+	
 	return Selected_Button;
 }
 void Realtime_Manager(){
