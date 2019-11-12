@@ -201,7 +201,8 @@ void Button_Operator(int Selected_Button){ //노가다로 짤 거 같은데 좀 
 	}
 }
 void Panel_and_Speaker_Controller(){
-
+	int MD.category_alpha
+	MD.category_beta
 }
 int Backlight_Controller(int backlight){ //색 변경
 	if(backlight==COLOR_DEF){
