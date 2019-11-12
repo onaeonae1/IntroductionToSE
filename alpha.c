@@ -1,19 +1,20 @@
 #include<stdio.h>
 #include<windows.h>
+#include<time.h>
 #define COLOR_DEF 4
 #define COLOR_GRN 2
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
 typedef enum Boolean{
 	false=0,
 	true = 1
-}bool;
+}Bool;
 //Data Store들을 정의하기
 typedef struct Mode{
-	bool alarm_buzzing;
+	Bool alarm_buzzing;
 	int category_alpha; //대분류
 	int category_beta; //소분류
-	bool stopwatch_indicator; //indicator 켜졌는지,
-	bool alarm_indicator; //indicator 꺼졌는지,
+	Bool stopwatch_indicator; //indicator 켜졌는지,
+	Bool alarm_indicator; //indicator 꺼졌는지,
 }mode;
 typedef struct Time{
 	int YY; //년도
@@ -23,40 +24,40 @@ typedef struct Time{
 	int MM; //분
 	int SS; //초
 	int MS; //ms
-}time;
+}Time;
 typedef struct Alarm{ //시작 시간
-	time startTime;
+	Time startTime;
 }alarm;
 typedef struct StopWatch{
 
 }stopwatch;
 //Data Store들 선언하기
 mode MD; //모드
-time CT; //현재 시간
+Time CT; //현재 시간
 int Backlight; //글자색
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
-bool buttonA_interface(char input){
+Bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
 		printf("Button A Selected \n");
 		return true;
 	}
 	return false;
 }
-bool buttonB_interface(char input){
+Bool buttonB_interface(char input){
 	if(input=='b' || input=='B'){
 		printf("Button B Selected \n");
 		return true;
 	}
 	return false;
 }
-bool buttonC_interface(char input){
+Bool buttonC_interface(char input){
 	if(input=='c' || input=='C'){
 		printf("Button C Selected \n");
 		return true;
 	}
 	return false;
 }
-bool buttonD_interface(char input){
+Bool buttonD_interface(char input){
 	if(input=='d' || input=='D'){
 		printf("Button D Selected \n");
 		return true;
@@ -76,7 +77,7 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	Backlight = Backlight_Controller(COLOR_GRN);
 }
 int Button_Selector(){
-	bool flag = false;
+	Bool flag = false;
 	int Selected_Button =0 ;
 	char temp;
 	//일정 기간 wait하고. -> 이 부분은 잠재적 수정 사항이다.
