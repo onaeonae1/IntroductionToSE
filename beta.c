@@ -105,7 +105,7 @@ int Button_Selector(){
 		temp = getch();
 		//scanf("%c", &temp);
 		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
-		switch(Selected_Button) {
+		switch(Selected_Button) { // break가 없어서 우선순위가 높은 버튼만 모두 확인한다.
 			case 0:
 				isA = buttonA_interface(temp);
 			case 1:
