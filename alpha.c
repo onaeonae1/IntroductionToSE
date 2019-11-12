@@ -133,6 +133,41 @@ int Button_Selector(){
 	printf("SELECTOR OFF\n");
 	return Selected_Button;
 }
+/*
+int Button_Selector() {
+
+	Sleep(1000);
+	int Selected_Button = 0;
+
+	Bool isA = false, isB = false, isC = false, isD = false;
+
+	while (kbhit()) {
+		isA = false; isB = false; isC = false; isD = false;
+		char temp = (char)getch();
+		//scanf("%c", &temp);
+		//우선순위는 아래와 같이 interface의 실행 순서로 고려한다.
+		switch (Selected_Button) { // break가 없어서 우선순위가 높은 버튼만 모두 확인한다.
+		case 0:
+			isA = buttonA_interface(temp);
+		case 1:
+			isB = buttonB_interface(temp);
+		case 2:
+			isC = buttonC_interface(temp);
+		case 3:
+			isD = buttonD_interface(temp);
+		default:
+			break;
+		}
+		if (isD) Selected_Button = 4;
+		else if (isC) Selected_Button = 3;
+		else if (isB) Selected_Button = 2;
+		else if (isA) Selected_Button = 1;
+	}
+	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
+
+	return Selected_Button;
+}
+*/
 void Realtime_Manager(){
 	//CT를 동기화해줌
 }
