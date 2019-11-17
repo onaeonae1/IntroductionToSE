@@ -265,7 +265,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.YY == 99) TD.YY -= 99; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.YY == 99) TD.YY -= 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.YY++; // 현재 시각 년 1 증가
 					// stopwatch 시작 년도 같이 늘려주기
 					if(ST.startTime.YY == 99) ST.startTime.YY = 19;
