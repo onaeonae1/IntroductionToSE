@@ -42,6 +42,7 @@ alm AL; //알람
 stopwatch ST; //스톱워치
 mode MD; //모드
 Time CT; //현재 시간
+Time TD; //절대 시간과의 차이
 int Backlight; //글자색
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
@@ -73,8 +74,18 @@ Bool buttonD_interface(char input){
 	return false;
 }
 void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
+	//절대 시간 선언
+	struct _timeb itb;
+	struct tm *now;
+	time_t ltime;
+	int milisec;
+	ftime(&itb);
+	ltime = itb.time;
+	milisec = itb.millitm;
+	now = localtime(&ltime);
 	//시간 초기화
 	CT.YY = 2019, CT.MT=1, CT.DD=1, CT.HH=0, CT.MM=0, CT.SS = 0, CT.MS=0;
+	TD.YY = now->tm_year - 100, TD.MT = now->tm_mon + 1, TD.DD = now->tm_mday, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec;
 	//알람 초기화
 	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0;
 	//스톱워치
