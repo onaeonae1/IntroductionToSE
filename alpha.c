@@ -125,8 +125,55 @@ int Button_Selector() {
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
 	return Selected_Button;
 }
-void Realtime_Manager(){
+void Realtime_Manager() {
 	//CT를 동기화해줌
+
+	//알람 끄는거 만들어야 함(자동으로)
+
+	//알람 시간보정 만들어야 함
+
+	if (MD.stopwatch_indicator) { // 스탑워치 시간 보정
+		// 60분이 지나면 알아서 꺼진다.
+		//if문 안에는 시간의 받아내림을 해야하는 경우가 있다. else는 그렇지 않은 경우다.
+		//받아내림을 하는 경우 하나 위 단위(ex 분을 계산중일 때 시간)를 1 빼서 계산해야 하므로 flag라는 변수에 1 혹은 0을 저장한다.
+		int flag = 0; // 받아내림 계산을 위한 수
+		if (CT.MS < ST.startTime.MS) {
+			ST.stopwatchTime.MS = CT.MS + 1000 - ST.startTime.MS;
+			flag = 1;
+		}
+		else ST.stopwatchTime.MS = CT.MS - ST.startTime.MS;
+		if (CT.SS < ST.startTime.SS) { // 받아내림에 대한 보정을 포함한다
+			ST.stopwatchTime.SS = CT.SS + 60 - flag - ST.startTime.MS;
+			flag = 1;
+		}
+		else {
+			ST.stopwatchTime.SS = CT.SS - flag - ST.startTime.SS;
+			flag = 0;
+		}
+		if (CT.MM < ST.startTime.MM) {
+			ST.stopwatchTime.MM = CT.MM + 60 - flag - ST.startTime.MM;
+			flag = 1;
+		}
+		else {
+			ST.stopwatchTime.MM = CT.MM - flag - ST.startTime.MM;
+			flag = 0;
+		}
+		if (CT.HH < ST.startTime.HH) ST.stopwatchTime.HH = CT.HH + 60 - flag - ST.startTime.HH;// 시간은 flag설정이 필요 없다. 일 단위까지 비교할 일이 없기 때문이다.
+		else ST.stopwatchTime.HH = CT.HH - flag - ST.startTime.HH;
+
+		
+		if (ST.stopwatchTime.HH) { // 60분이 지났는지 확인하기 위해 시간 값을 본다. 1 이상이면 60분 이상으로 볼 수 있다.
+			// 매번 보정이 끝날 때마다 time에 대한 보정(60분 이상이면 시간을 1로 바꾸고 분은 0이 되는 거)이 일어나므로 이렇게 짰다.
+			MD.stopwatch_indicator = false;
+			//ST.stopwatchTime.YY = 0; ST.stopwatchTime.HH = 0; 초기화(함수를 만들 수 있는지 조교님께 질문할 예정
+
+		}
+
+	}
+
+
+	// 현재시간 보정 만들어야함
+
 }
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
