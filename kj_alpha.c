@@ -5,45 +5,45 @@
 #include"getch.h"
 #define COLOR_DEF 4
 #define COLOR_GRN 2
-//c¿¡´Â boolÀÌ ¾ø´Ù. µû¶ó¼­ ÀÌ·¸°Ô ¿­°ÅÇüÀ¸·Î ¸¸µé¾îÁà¼­ »ç¿ëÇØ¾ß ÇÔ.
+//cì—ëŠ” boolì´ ì—†ë‹¤. ë”°ë¼ì„œ ì´ë ‡ê²Œ ì—´ê±°í˜•ìœ¼ë¡œ ë§Œë“¤ì–´ì¤˜ì„œ ì‚¬ìš©í•´ì•¼ í•¨.
 typedef enum Boolean {
 	false = 0,
 	true = 1
 }Bool;
-//Data StoreµéÀ» Á¤ÀÇÇÏ±â
+//Data Storeë“¤ì„ ì •ì˜í•˜ê¸°
 typedef struct Mode {
 	Bool alarm_buzzing;
-	int category_alpha; //´ëºĞ·ù
-	int category_beta; //¼ÒºĞ·ù
-	Bool stopwatch_indicator; //indicator ÄÑÁ³´ÂÁö,
-	Bool alarm_indicator; //indicator ²¨Á³´ÂÁö,
+	int category_alpha; //ëŒ€ë¶„ë¥˜
+	int category_beta; //ì†Œë¶„ë¥˜
+	Bool stopwatch_indicator; //indicator ì¼œì¡ŒëŠ”ì§€,
+	Bool alarm_indicator; //indicator êº¼ì¡ŒëŠ”ì§€,
 }mode;
 typedef struct Time {
-	int YY; //³âµµ (2019-2099)
-	int MT; //¿ù (1-12)
-	int DD; //ÀÏ (MT: 1,3,5,7,8,10,12 -> 1-31, MT: 4,6,9,11 -> 1-30, MT: 2 -> 1-28)
-	int HH; //½Ã (0-24)
-	int MM; //ºĞ (0-59)
-	int SS; //ÃÊ (0-59)
+	int YY; //ë…„ë„ (2019-2099)
+	int MT; //ì›” (1-12)
+	int DD; //ì¼ (MT: 1,3,5,7,8,10,12 -> 1-31, MT: 4,6,9,11 -> 1-30, MT: 2 -> 1-28)
+	int HH; //ì‹œ (0-24)
+	int MM; //ë¶„ (0-59)
+	int SS; //ì´ˆ (0-59)
 	int MS; //ms (0-999)
 }Time;
-typedef struct Alarm { //½ÃÀÛ ½Ã°£
+typedef struct Alarm { //ì‹œì‘ ì‹œê°„
 	Time alarmTime;
 }alm;
 typedef struct StopWatch {
-	//LapTimeÀº StartTimeÀ» ±â¹İÀ¸·Î ¾÷µ¥ÀÌÆ® µÈ´Ù.
+	//LapTimeì€ StartTimeì„ ê¸°ë°˜ìœ¼ë¡œ ì—…ë°ì´íŠ¸ ëœë‹¤.
 	Time stopwatchTime;
 	Time startTime;
 	Time lapTime;
 
 }stopwatch;
-//Data Storeµé ¼±¾ğÇÏ±â
-alm AL; //¾Ë¶÷
-stopwatch ST; //½ºÅé¿öÄ¡
-mode MD; //¸ğµå
-Time CT; //ÇöÀç ½Ã°£
-int Backlight; //±ÛÀÚ»ö
-//0 : Alarm Buzzing, 1 : ´ëºĞ·ù, 2: ¼ÒºĞ·ù , 3 : Stopwatch_Indicator, 4 : Alarm indicator
+//Data Storeë“¤ ì„ ì–¸í•˜ê¸°
+alm AL; //ì•ŒëŒ
+stopwatch ST; //ìŠ¤í†±ì›Œì¹˜
+mode MD; //ëª¨ë“œ
+Time CT; //í˜„ì¬ ì‹œê°„
+int Backlight; //ê¸€ììƒ‰
+//0 : Alarm Buzzing, 1 : ëŒ€ë¶„ë¥˜, 2: ì†Œë¶„ë¥˜ , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input) {
 	if (input == 'a' || input == 'A') {
 		//printf("Button A Selected \n");
@@ -79,16 +79,16 @@ Bool buttonNone_interface(char input) {
 	}
 	return false;
 }
-void init() { //ÃÊ±âÈ­. ÇÁ·Î±×·¥ Ã¹ ½ÇÇà½Ã¿¡ È£ÃâµÊ.
-	//½Ã°£ ÃÊ±âÈ­
+void init() { //ì´ˆê¸°í™”. í”„ë¡œê·¸ë¨ ì²« ì‹¤í–‰ì‹œì— í˜¸ì¶œë¨.
+	//ì‹œê°„ ì´ˆê¸°í™”
 	CT.YY = 2019, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0;
-	//¾Ë¶÷ ÃÊ±âÈ­
+	//ì•ŒëŒ ì´ˆê¸°í™”
 	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0;
-	//½ºÅé¿öÄ¡
+	//ìŠ¤í†±ì›Œì¹˜
 	ST.stopwatchTime.YY = 2019, ST.stopwatchTime.MT = 1, ST.stopwatchTime.DD = 1, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0;
 	ST.startTime.YY = 2019, ST.startTime.MT = 1, ST.startTime.DD = 1, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0;
 	ST.lapTime.YY = 2019, ST.lapTime.MT = 1, ST.lapTime.DD = 1, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0;
-	//¸ğµå ÃÊ±âÈ­
+	//ëª¨ë“œ ì´ˆê¸°í™”
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 0, MD.category_beta = 0;
 	Backlight = Backlight_Controller(COLOR_GRN);
@@ -98,7 +98,7 @@ int Button_Selector() {
 	int Selected_Button = 0;
 	Bool isA = false, isB = false, isC = false, isD = false;
 	int value = -1;
-	while (value = linux_kbhit()) { //no buttonÀÎ °æ¿ì ÀÌ°÷À» °ÅÄ¡Áö ¾Ê´Â´Ù.
+	while (value = linux_kbhit()) { //no buttonì¸ ê²½ìš° ì´ê³³ì„ ê±°ì¹˜ì§€ ì•ŠëŠ”ë‹¤.
 		isA = false; isB = false; isC = false; isD = false;
 		char temp = getch();
 		isD = buttonD_interface(temp);
@@ -139,20 +139,20 @@ void Button_Operator(int Selected_Button) {
 	Bool stopwatch_indicator = MD.stopwatch_indicator;
 	Bool alarm_indicator = MD.alarm_indicator;
 
-	// ¸ğµåÀÇ ´ëºĞ·ù(category_alpha)-¼ÒºĞ·ù(category_beta)-Selected_Button ¼ø¼­·Î ÀÛ¼º
-	if (alarm_buzzing) { //¾Ë¶÷ ¿ï¸®±â°¡ ÃÖ¿ì¼±
+	// ëª¨ë“œì˜ ëŒ€ë¶„ë¥˜(category_alpha)-ì†Œë¶„ë¥˜(category_beta)-Selected_Button ìˆœì„œë¡œ ì‘ì„±
+	if (alarm_buzzing) { //ì•ŒëŒ ìš¸ë¦¬ê¸°ê°€ ìµœìš°ì„ 
 		if (Selected_Button == 0) {
-			// ¹öÆ°ÀÌ ´­¸®Áö ¾ÊÀ¸¸é 5ÃÊ µ¿¾È °¡¸¸È÷ ÀÖ´Ù°¡ ½º½º·Î Á¾·á
+			// ë²„íŠ¼ì´ ëˆŒë¦¬ì§€ ì•Šìœ¼ë©´ 5ì´ˆ ë™ì•ˆ ê°€ë§Œíˆ ìˆë‹¤ê°€ ìŠ¤ìŠ¤ë¡œ ì¢…ë£Œ
 		}
-		else { // ¾Ë¶÷À» ²û
-			MD.alarm_buzzing = false; // ¾Ë¶÷ ¾È ¿ï¸² »óÅÂ·Î ¹Ù²ãÁÖ°í
+		else { // ì•ŒëŒì„ ë”
+			MD.alarm_buzzing = false; // ì•ŒëŒ ì•ˆ ìš¸ë¦¼ ìƒíƒœë¡œ ë°”ê¿”ì£¼ê³ 
 			AL.alarmTime.YY = 2019;
 			AL.alarmTime.MT = 1;
 			AL.alarmTime.DD = 1;
 			AL.alarmTime.HH = 0;
 			AL.alarmTime.MM = 0;
 			AL.alarmTime.SS = 0;
-			AL.alarmTime.MS = 0; // ¾Ë¶÷ ¼³Á¤ ½Ã°¢À» ÃÊ±âÈ­
+			AL.alarmTime.MS = 0; // ì•ŒëŒ ì„¤ì • ì‹œê°ì„ ì´ˆê¸°í™”
 		}
 	}
 	else {
@@ -181,10 +181,20 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.SS == 59) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
-						CT.SS == 0;
+					if (CT.SS == 59) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
+						CT.SS = 0;
 					}
-					else CT.SS++; // ÇöÀç ½Ã°¢ ÃÊ 1 Áõ°¡
+					else {
+						CT.SS++; // í˜„ì¬ ì‹œê° ì´ˆ 1 ì¦ê°€
+					}
+					// stopwatch ì‹œì‘ ì´ˆë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+					if(ST.startTime.SS == 59) {
+						ST.startTime.SS = 0;
+						ST.startTime.MM++;
+					}
+					else {
+						ST.startTime.SS++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -201,10 +211,18 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.HH == 23) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
-						CT.HH == 0;
+					if (CT.HH == 23) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
+						CT.HH = 0;
 					}
-					else CT.HH++; // ÇöÀç ½Ã°¢ ½Ã°£ 1 Áõ°¡
+					else CT.HH++; // í˜„ì¬ ì‹œê° ì‹œê°„ 1 ì¦ê°€
+					// stopwatch ì‹œì‘ ì‹œê°„ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+					if(ST.startTime.HH == 23) {
+						ST.startTime.HH = 0;
+						ST.startTime.DD++;
+					}
+					else {
+						ST.startTime.HH++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 4;
@@ -221,10 +239,18 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.MM == 59) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+					if (CT.MM == 59) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 						CT.MM = 0;
 					}
-					else CT.MM++; // ÇöÀç ½Ã°¢ ºĞ 1 Áõ°¡
+					else CT.MM++; // í˜„ì¬ ì‹œê° ë¶„ 1 ì¦ê°€
+					// stopwatch ì‹œì‘ ë¶„ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+					if(ST.startTime.MM == 59) {
+						ST.startTime.MM = 0;
+						ST.startTime.HH++;
+					}
+					else {
+						ST.startTime.MM++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 5;
@@ -241,10 +267,17 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.YY == 2099) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
-						CT.YY = 2019;
+					if (CT.YY == 99) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
+						CT.YY = 19;
 					}
-					else CT.YY++; // ÇöÀç ½Ã°¢ ³â 1 Áõ°¡
+					else CT.YY++; // í˜„ì¬ ì‹œê° ë…„ 1 ì¦ê°€
+					// stopwatch ì‹œì‘ ë…„ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+					if(ST.startTime.YY == 99) {
+						ST.startTime.YY = 19;
+					}
+					else {
+						ST.startTime.YY++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 6;
@@ -261,10 +294,18 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.MT == 12) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+					if (CT.MT == 12) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 						CT.MT = 1;
 					}
-					else CT.MT++; // ÇöÀç ½Ã°¢ ´Ş 1 Áõ°¡
+					else CT.MT++; // í˜„ì¬ ì‹œê° ë‹¬ 1 ì¦ê°€
+					// stopwatch ì‹œì‘ ì›”ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+					if(ST.startTime.MT == 12) {
+						ST.startTime.MT = 0;
+						ST.startTime.YY++;
+					}
+					else {
+						ST.startTime.MT++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 7;
@@ -281,9 +322,9 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					// ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+					// ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 					switch (CT.MT) {
-						// ÇÑ ´Ş¿¡ 31ÀÏÀÌ ÀÖ´Â °æ¿ì
+						// í•œ ë‹¬ì— 31ì¼ì´ ìˆëŠ” ê²½ìš°
 					case 1:
 					case 3:
 					case 5:
@@ -291,27 +332,45 @@ void Button_Operator(int Selected_Button) {
 					case 8:
 					case 10:
 					case 12:
-						if (CT.DD == 31) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+						if (CT.DD == 31) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch ì‹œì‘ ì¼ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+						if(ST.startTime.DD == 31) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
-						// ÇÑ ´Ş¿¡ 28ÀÏÀÌ ÀÖ´Â °æ¿ì(À±³âÀº Á¦¿Ü)
+						// í•œ ë‹¬ì— 28ì¼ì´ ìˆëŠ” ê²½ìš°(ìœ¤ë…„ì€ ì œì™¸)
 					case 2:
-						if (CT.DD == 28) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+						if (CT.DD == 28) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch ì‹œì‘ ì¼ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+						if(ST.startTime.DD == 28) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
-						// ÇÑ ´Ş¿¡ 30ÀÏÀÌ ÀÖ´Â °æ¿ì
+						// í•œ ë‹¬ì— 30ì¼ì´ ìˆëŠ” ê²½ìš°
 					case 4:
 					case 6:
 					case 9:
 					case 11:
-						if (CT.DD == 30) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+						if (CT.DD == 30) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch ì‹œì‘ ì¼ë„ ê°™ì´ ëŠ˜ë ¤ì£¼ê¸°
+						if(ST.startTime.DD == 30) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
 					}
 					break;
@@ -333,7 +392,7 @@ void Button_Operator(int Selected_Button) {
 				switch (Selected_Button) {
 				case 1: // A
 					if (stopwatch_indicator == 0) {
-						// ST.stopwatchTime = 0À» ÇØÁÜ
+						// ST.stopwatchTime = 0ì„ í•´ì¤Œ
 						ST.stopwatchTime.YY = 0;
 						ST.stopwatchTime.MT = 0;
 						ST.stopwatchTime.DD = 0;
@@ -341,7 +400,7 @@ void Button_Operator(int Selected_Button) {
 						ST.stopwatchTime.MM = 0;
 						ST.stopwatchTime.SS = 0;
 						ST.stopwatchTime.MS = 0;
-						// ST.startTime = 0À» ÇØÁÜ
+						// ST.startTime = 0ì„ í•´ì¤Œ
 						ST.startTime.YY = 0;
 						ST.startTime.MT = 0;
 						ST.startTime.DD = 0;
@@ -359,7 +418,7 @@ void Button_Operator(int Selected_Button) {
 				case 2: // B
 					if (stopwatch_indicator == 0) {
 						MD.stopwatch_indicator = 1;
-						// ST.stopwatchTime += ST.startTimeÀ» ÇØÁÜ
+						// ST.stopwatchTime += ST.startTimeì„ í•´ì¤Œ
 						ST.stopwatchTime.YY += ST.startTime.YY;
 						ST.stopwatchTime.MT += ST.startTime.MT;
 						ST.stopwatchTime.DD += ST.startTime.DD;
@@ -433,10 +492,10 @@ void Button_Operator(int Selected_Button) {
 				case 1: // A
 					break;
 				case 2: // B
-					if (AL.alarmTime.HH == 23) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+					if (AL.alarmTime.HH == 23) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 						AL.alarmTime.HH = 0;
 					}
-					else AL.alarmTime.HH++; // ¾Ë¶÷ ½ÃÀÛ ½Ã°£ 1 Áõ°¡
+					else AL.alarmTime.HH++; // ì•ŒëŒ ì‹œì‘ ì‹œê°„ 1 ì¦ê°€
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -452,10 +511,10 @@ void Button_Operator(int Selected_Button) {
 				case 1: // A
 					break;
 				case 2: // B
-					if (AL.alarmTime.MM = 59) { // ÃÖ´ëÄ¡°¡ µÈ »óÅÂ¿¡¼­ ´Ù½Ã ÀÔ·ÂÇÏ¸é ÃÖÀú°ªÀ¸·Î
+					if (AL.alarmTime.MM = 59) { // ìµœëŒ€ì¹˜ê°€ ëœ ìƒíƒœì—ì„œ ë‹¤ì‹œ ì…ë ¥í•˜ë©´ ìµœì €ê°’ìœ¼ë¡œ
 						AL.alarmTime.MM = 0;
 					}
-					AL.alarmTime.MM++; // ¾Ë¶÷ ½ÃÀÛ ºĞ 1 Áõ°¡
+					AL.alarmTime.MM++; // ì•ŒëŒ ì‹œì‘ ë¶„ 1 ì¦ê°€
 					break;
 				case 3: // C
 					MD.category_beta = 2;
@@ -471,8 +530,8 @@ void Button_Operator(int Selected_Button) {
 	}
 }
 void Realtime_Manager() {
-	// 1. CT¸¦ µ¿±âÈ­ (int ¿¬»êµéÀ» ½Ã°£ ¹üÀ§ ³»·Î ¸ÂÃçÁÜ)
-	// ST.stopwatchTime ½Ã°£ ¹üÀ§ ³»·Î ¸ÂÃß±â
+	// 1. CTë¥¼ ë™ê¸°í™” (int ì—°ì‚°ë“¤ì„ ì‹œê°„ ë²”ìœ„ ë‚´ë¡œ ë§ì¶°ì¤Œ)
+	// ST.stopwatchTime ì‹œê°„ ë²”ìœ„ ë‚´ë¡œ ë§ì¶”ê¸°
 	if(ST.stopwatchTime.MS >= 1000) {
 		ST.stopwatchTime.MS -= 1000;
 		ST.stopwatchTime.SS++;
@@ -489,7 +548,7 @@ void Realtime_Manager() {
 		ST.stopwatchTime.HH -= 24;
 		ST.stopwatchTime.DD++;
 	}
-	switch(ST.stopwatchTime.MT) { // ´Ş º°·Î ÀÏ ¹üÀ§ ¾È¿¡ µé¾î¿À´ÂÁö¸¦ È®ÀÎ
+	switch(ST.stopwatchTime.MT) { // ë‹¬ ë³„ë¡œ ì¼ ë²”ìœ„ ì•ˆì— ë“¤ì–´ì˜¤ëŠ”ì§€ë¥¼ í™•ì¸
 	case 1:
 	case 3:
 	case 5:
@@ -511,7 +570,7 @@ void Realtime_Manager() {
 			ST.stopwatchTime.MT++;
 		}
 		break;
-	case 2: // À±³âÀº °í·ÁÇÏÁö ¾ÊÀ½
+	case 2: // ìœ¤ë…„ì€ ê³ ë ¤í•˜ì§€ ì•ŠìŒ
 		if(ST.stopwatchTime.DD > 28) {
 			ST.stopwatchTime.DD -= 28;
 			ST.stopwatchTime.MT++;
@@ -524,7 +583,7 @@ void Realtime_Manager() {
 		ST.stopwatchTime.YY++;
 	}
 
-	// ST.lapTimeÀ» ½Ã°£ ¹üÀ§ ³»·Î ¸ÂÃß±â
+	// ST.lapTimeì„ ì‹œê°„ ë²”ìœ„ ë‚´ë¡œ ë§ì¶”ê¸°
 	if(ST.lapTime.MS >= 1000) {
 			ST.lapTime.MS -= 1000;
 		ST.lapTime.SS++;
@@ -541,7 +600,7 @@ void Realtime_Manager() {
 		ST.lapTime.HH -= 24;
 		ST.lapTime.DD++;
 	}
-	switch(ST.lapTime.MT) { // ´Ş º°·Î ÀÏ ¹üÀ§ ¾È¿¡ µé¾î¿À´ÂÁö¸¦ È®ÀÎ
+	switch(ST.lapTime.MT) { // ë‹¬ ë³„ë¡œ ì¼ ë²”ìœ„ ì•ˆì— ë“¤ì–´ì˜¤ëŠ”ì§€ë¥¼ í™•ì¸
 	case 1:
 	case 3:
 	case 5:
@@ -563,7 +622,7 @@ void Realtime_Manager() {
 			ST.lapTime.MT++;
 		}
 		break;
-	case 2: // À±³âÀº °í·ÁÇÏÁö ¾ÊÀ½
+	case 2: // ìœ¤ë…„ì€ ê³ ë ¤í•˜ì§€ ì•ŠìŒ
 		if(ST.lapTime.DD > 28) {
 			ST.lapTime.DD -= 28;
 			ST.lapTime.MT++;
@@ -592,7 +651,7 @@ void Realtime_Manager() {
 		ST.lapTime.DD--;
 	}
 	if(ST.lapTime.DD < 0) {
-		switch(ST.lapTime.MT) { // ´Ş º°·Î ÀÏ ¹üÀ§ ¾È¿¡ µé¾î¿À´ÂÁö¸¦ È®ÀÎ
+		switch(ST.lapTime.MT) { // ë‹¬ ë³„ë¡œ ì¼ ë²”ìœ„ ì•ˆì— ë“¤ì–´ì˜¤ëŠ”ì§€ë¥¼ í™•ì¸
 		case 1:
 		case 3:
 		case 5:
@@ -610,7 +669,7 @@ void Realtime_Manager() {
 			ST.lapTime.DD += 30;
 			ST.lapTime.MT--;
 			break;
-		case 2: // À±³âÀº °í·ÁÇÏÁö ¾ÊÀ½
+		case 2: // ìœ¤ë…„ì€ ê³ ë ¤í•˜ì§€ ì•ŠìŒ
 			ST.lapTime.DD += 28;
 			ST.lapTime.MT--;
 			break;
@@ -622,14 +681,20 @@ void Realtime_Manager() {
 		ST.lapTime.YY--;
 	}
 
+	// 2. ìë™ìœ¼ë¡œ ì•ŒëŒ ë„ê¸°
+	if (MD.alarm_buzzing && CT.SS >= 5) // ì•ŒëŒì´ ìš¸ë¦¬ëŠ” ì¤‘ì¼ ë•Œ ìë™ìœ¼ë¡œ ë„ëŠ” ì½”ë“œ
+		MD.alarm_buzzing = false; // ì•ŒëŒì˜ ì†Œë¦¬ëŠ” 1. alarm_indicator == trueì¼ë•Œ, 2. alarm_Time == Current_Timeì¼ ë•Œ ì¼œì§„ë‹¤.
+	// ì•ŒëŒì´ ì¼œì§€ëŠ” ê±´ ë§¤ ì •ê° ë¶„(xxë¶„ 00ì´ˆ)ì´ê³ , ì•ŒëŒì€ 5ì´ˆë§Œ ì¼œì§€ë¯€ë¡œ, í˜„ì¬ ì‹œê°„ì˜ ì´ˆê°€ 5ë³´ë‹¤ í´ ë•Œ ì•ŒëŒì„ ìë™ìœ¼ë¡œ ë„ë©´ ëœë‹¤.
+
+
 }
-void Mode_Changer(mode Mode_to_Change) { //MD¸¦ ¼öÁ¤ÇÒ ¼ö ÀÖ´Â ÇÔ¼ö
-	MD = Mode_to_Change; //°ª º¹»ç
+void Mode_Changer(mode Mode_to_Change) { //MDë¥¼ ìˆ˜ì •í•  ìˆ˜ ìˆëŠ” í•¨ìˆ˜
+	MD = Mode_to_Change; //ê°’ ë³µì‚¬
 }
 void Panel_and_Speaker_Controller() {
 
 }
-int Backlight_Controller(int backlight) { //»ö º¯°æ
+int Backlight_Controller(int backlight) { //ìƒ‰ ë³€ê²½
 	if (backlight == COLOR_DEF) {
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COLOR_GRN);
 		return COLOR_GRN;
@@ -641,7 +706,7 @@ int Backlight_Controller(int backlight) { //»ö º¯°æ
 }
 int main() {
 	init();
-	//Å×½ºÆ® ±¸°£. ¾ÆÁ÷ ÀÇ¹Ì X
+	//í…ŒìŠ¤íŠ¸ êµ¬ê°„. ì•„ì§ ì˜ë¯¸ X
 	int Selected_Button = 0;
 	while (true) {
 		Selected_Button = Button_Selector();
