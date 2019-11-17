@@ -193,7 +193,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (TD.SS == 59) TD.SS -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.SS == 59) TD.SS -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.SS++; // 현재 시각 초 1 증가
 					// stopwatch 시작 초도 같이 늘려주기
 					if(ST.startTime.SS == 59) {
@@ -217,7 +217,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (TD.HH == 23) TD.HH -= 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.HH == 23) TD.HH -= 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.HH++; // 현재 시각 시간 1 증가
 					// stopwatch 시작 시간도 같이 늘려주기
 					if(ST.startTime.HH == 23) {
@@ -241,7 +241,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (TD.MM == 59) TD.MM -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.MM == 59) TD.MM -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.MM++; // 현재 시각 분 1 증가
 					// stopwatch 시작 분도 같이 늘려주기
 					if(ST.startTime.MM == 59) {
@@ -265,7 +265,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (TD.YY == 99) TD.YY -= 99; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.YY == 99) TD.YY -= 99; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.YY++; // 현재 시각 년 1 증가
 					// stopwatch 시작 년도 같이 늘려주기
 					if(ST.startTime.YY == 99) ST.startTime.YY = 19;
@@ -286,7 +286,7 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (TD.MT == 12) TD.MT -= 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (CT.MT == 12) TD.MT -= 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.MT++; // 현재 시각 달 1 증가
 					// stopwatch 시작 월도 같이 늘려주기
 					if(ST.startTime.MT == 12) {
@@ -311,8 +311,8 @@ void Button_Operator(int Selected_Button) {
 					break;
 				case 2: // B
 					// 최대치가 된 상태에서 다시 입력하면 최저값으로
-					switch (TD.MT) {
-						// 한 달에 31일이 있는 경우
+					switch (CT.MT) {
+					// 한 달에 31일이 있는 경우
 					case 1:
 					case 3:
 					case 5:
@@ -320,7 +320,7 @@ void Button_Operator(int Selected_Button) {
 					case 8:
 					case 10:
 					case 12:
-						if (TD.DD == 31) TD.DD -= 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						if (CT.DD == 31) TD.DD -= 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 						else TD.DD++;
 						// stopwatch 시작 일도 같이 늘려주기
 						if(ST.startTime.DD == 31) {
@@ -329,14 +329,14 @@ void Button_Operator(int Selected_Button) {
 						}
 						else ST.startTime.DD++;
 						break;
-						// 한 달에 28일이 있는 경우(윤년은 제외)
+					// 한 달에 28일이 있는 경우
 					case 2:
-						if(TD.YY % 4 == 0) { // 윤년이면
-							if(TD.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						if(CT.YY % 4 == 0) { // 윤년이면
+							if(CT.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 							else TD.DD++;
 						}
 						else { // 윤년이 아닌 경우에는
-							if(TD.DD == 28) TD.DD -= 28;
+							if(CT.DD == 28) TD.DD -= 28;
 							else TD.DD++;
 						}
 						// stopwatch 시작 일도 같이 늘려주기
@@ -355,12 +355,12 @@ void Button_Operator(int Selected_Button) {
 							else ST.startTime.DD++;
 						}
 						break;
-						// 한 달에 30일이 있는 경우
+					// 한 달에 30일이 있는 경우
 					case 4:
 					case 6:
 					case 9:
 					case 11:
-						if (TD.DD == 30) TD.DD -= 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						if (CT.DD == 30) TD.DD -= 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 						else TD.DD++;
 						// stopwatch 시작 일도 같이 늘려주기
 						if(ST.startTime.DD == 30) {
