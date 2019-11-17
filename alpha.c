@@ -28,7 +28,7 @@ typedef struct Time{
 	int SS; //초
 	int MS; //ms
 }Time;
-typedef struct Alarm{ //시작 시간
+typedef struct Alm{ //시작 시간
 	Time alarmTime;
 }alm;
 typedef struct StopWatch{
@@ -74,6 +74,9 @@ Bool buttonD_interface(char input){
 	}
 	return false;
 }
+void Alarm(){ //소리 울리기
+	printf("\a");
+}
 void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	//절대 시간 선언
 	struct _timeb itb;
@@ -99,7 +102,7 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	Backlight = Backlight_Controller(COLOR_GRN);
 }
 int Button_Selector() {
-	Sleep(1000);
+	//sleep(1);
 	int Selected_Button = 0;
 	Bool isA = false, isB = false, isC = false, isD = false;
 	int value=-1;
@@ -136,64 +139,6 @@ int Button_Selector() {
 	}
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
 	return Selected_Button;
-}
-void Realtime_Manager() {
-	//CT를 동기화해줌
-
-	//자동으로 알람 끄기
-	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
-		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
-	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
-
-	//알람 buzzing모드 켜기
-	if (MD.alarm_indicator) {
-		if (CT.YY == AL.alarmTime.YY && CT.MT == AL.alarmTime.MT && CT.DD == AL.alarmTime.DD && CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
-			if (CT.SS < 5) MD.alarm_buzzing = true; // 현재 시간의 초가 5초 미만이면 알람 끄는것과 같은 논리로 알람이 울리고 있을 수밖에 없다.
-		}
-	}
-
-	if (MD.stopwatch_indicator) { // 스탑워치 시간 보정
-		// 60분이 지나면 알아서 꺼진다.
-		//if문 안에는 시간의 받아내림을 해야하는 경우가 있다. else는 그렇지 않은 경우다.
-		//받아내림을 하는 경우 하나 위 단위(ex 분을 계산중일 때 시간)를 1 빼서 계산해야 하므로 flag라는 변수에 1 혹은 0을 저장한다.
-		int flag = 0; // 받아내림 계산을 위한 수
-		if (CT.MS < ST.startTime.MS) {
-			ST.stopwatchTime.MS = CT.MS + 1000 - ST.startTime.MS;
-			flag = 1;
-		}
-		else ST.stopwatchTime.MS = CT.MS - ST.startTime.MS;
-		if (CT.SS < ST.startTime.SS) { // 받아내림에 대한 보정을 포함한다
-			ST.stopwatchTime.SS = CT.SS + 60 - flag - ST.startTime.MS;
-			flag = 1;
-		}
-		else {
-			ST.stopwatchTime.SS = CT.SS - flag - ST.startTime.SS;
-			flag = 0;
-		}
-		if (CT.MM < ST.startTime.MM) {
-			ST.stopwatchTime.MM = CT.MM + 60 - flag - ST.startTime.MM;
-			flag = 1;
-		}
-		else {
-			ST.stopwatchTime.MM = CT.MM - flag - ST.startTime.MM;
-			flag = 0;
-		}
-		if (CT.HH < ST.startTime.HH) ST.stopwatchTime.HH = CT.HH + 60 - flag - ST.startTime.HH;// 시간은 flag설정이 필요 없다. 일 단위까지 비교할 일이 없기 때문이다.
-		else ST.stopwatchTime.HH = CT.HH - flag - ST.startTime.HH;
-
-		
-		if (ST.stopwatchTime.HH) { // 60분이 지났는지 확인하기 위해 시간 값을 본다. 1 이상이면 60분 이상으로 볼 수 있다.
-			// 매번 보정이 끝날 때마다 time에 대한 보정(60분 이상이면 시간을 1로 바꾸고 분은 0이 되는 거)이 일어나므로 이렇게 짰다.
-			MD.stopwatch_indicator = false;
-			//ST.stopwatchTime.YY = 0; ST.stopwatchTime.HH = 0; 초기화(함수를 만들 수 있는지 조교님께 질문할 예정
-
-		}
-
-	}
-
-
-	// 현재시간 보정 만들어야함
-
 }
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
@@ -248,9 +193,19 @@ void Button_Operator(int Selected_Button) {
 					break;
 				case 2: // B
 					if (CT.SS == 59) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
-						CT.SS == 0;
+						CT.SS = 0;
 					}
-					else CT.SS++; // 현재 시각 초 1 증가
+					else {
+						CT.SS++; // 현재 시각 초 1 증가
+					}
+					// stopwatch 시작 초도 같이 늘려주기
+					if(ST.startTime.SS == 59) {
+						ST.startTime.SS = 0;
+						ST.startTime.MM++;
+					}
+					else {
+						ST.startTime.SS++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -268,9 +223,17 @@ void Button_Operator(int Selected_Button) {
 					break;
 				case 2: // B
 					if (CT.HH == 23) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
-						CT.HH == 0;
+						CT.HH = 0;
 					}
 					else CT.HH++; // 현재 시각 시간 1 증가
+					// stopwatch 시작 시간도 같이 늘려주기
+					if(ST.startTime.HH == 23) {
+						ST.startTime.HH = 0;
+						ST.startTime.DD++;
+					}
+					else {
+						ST.startTime.HH++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 4;
@@ -291,6 +254,14 @@ void Button_Operator(int Selected_Button) {
 						CT.MM = 0;
 					}
 					else CT.MM++; // 현재 시각 분 1 증가
+					// stopwatch 시작 분도 같이 늘려주기
+					if(ST.startTime.MM == 59) {
+						ST.startTime.MM = 0;
+						ST.startTime.HH++;
+					}
+					else {
+						ST.startTime.MM++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 5;
@@ -307,10 +278,17 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.YY == 2099) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
-						CT.YY = 2019;
+					if (CT.YY == 99) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						CT.YY = 19;
 					}
 					else CT.YY++; // 현재 시각 년 1 증가
+					// stopwatch 시작 년도 같이 늘려주기
+					if(ST.startTime.YY == 99) {
+						ST.startTime.YY = 19;
+					}
+					else {
+						ST.startTime.YY++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 6;
@@ -331,6 +309,14 @@ void Button_Operator(int Selected_Button) {
 						CT.MT = 1;
 					}
 					else CT.MT++; // 현재 시각 달 1 증가
+					// stopwatch 시작 월도 같이 늘려주기
+					if(ST.startTime.MT == 12) {
+						ST.startTime.MT = 0;
+						ST.startTime.YY++;
+					}
+					else {
+						ST.startTime.MT++;
+					}
 					break;
 				case 3: // C
 					MD.category_beta = 7;
@@ -361,13 +347,25 @@ void Button_Operator(int Selected_Button) {
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch 시작 일도 같이 늘려주기
+						if(ST.startTime.DD == 31) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
-						// 한 달에 28일이 있는 경우(윤달은 제외)
+						// 한 달에 28일이 있는 경우(윤년은 제외)
 					case 2:
 						if (CT.DD == 28) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch 시작 일도 같이 늘려주기
+						if(ST.startTime.DD == 28) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
 						// 한 달에 30일이 있는 경우
 					case 4:
@@ -378,6 +376,12 @@ void Button_Operator(int Selected_Button) {
 							CT.DD = 1;
 						}
 						else CT.DD++;
+						// stopwatch 시작 일도 같이 늘려주기
+						if(ST.startTime.DD == 30) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
 						break;
 					}
 					break;
@@ -499,7 +503,10 @@ void Button_Operator(int Selected_Button) {
 				case 1: // A
 					break;
 				case 2: // B
-					AL.alarmTime.HH++; // 알람 시작 시간 1 증가
+					if (AL.alarmTime.HH == 23) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						AL.alarmTime.HH = 0;
+					}
+					else AL.alarmTime.HH++; // 알람 시작 시간 1 증가
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -515,6 +522,9 @@ void Button_Operator(int Selected_Button) {
 				case 1: // A
 					break;
 				case 2: // B
+					if (AL.alarmTime.MM = 59) { // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						AL.alarmTime.MM = 0;
+					}
 					AL.alarmTime.MM++; // 알람 시작 분 1 증가
 					break;
 				case 3: // C
@@ -529,6 +539,173 @@ void Button_Operator(int Selected_Button) {
 			}
 		}
 	}
+}
+void Realtime_Manager() {
+	// 1. CT를 동기화 (int 연산들을 시간 범위 내로 맞춰줌)
+	// ST.stopwatchTime 시간 범위 내로 맞추기
+	if(ST.stopwatchTime.MS >= 1000) {
+		ST.stopwatchTime.MS -= 1000;
+		ST.stopwatchTime.SS++;
+	}
+	if(ST.stopwatchTime.SS >= 60) {
+		ST.stopwatchTime.SS -= 60;
+		ST.stopwatchTime.MM++;
+	}
+	if(ST.stopwatchTime.MM >= 60) {
+		ST.stopwatchTime.MM-= 60;
+		ST.stopwatchTime.HH++;
+	}
+	if(ST.stopwatchTime.HH >= 24) {
+		ST.stopwatchTime.HH -= 24;
+		ST.stopwatchTime.DD++;
+	}
+	switch(ST.stopwatchTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
+	case 1:
+	case 3:
+	case 5:
+	case 7:
+	case 8:
+	case 10:
+	case 12:
+		if(ST.stopwatchTime.DD > 31) {
+			ST.stopwatchTime.DD -= 31;
+			ST.stopwatchTime.MT++;
+		}
+		break;
+	case 4:
+	case 6:
+	case 9:
+	case 11:
+		if(ST.stopwatchTime.DD > 30) {
+			ST.stopwatchTime.DD -= 30;
+			ST.stopwatchTime.MT++;
+		}
+		break;
+	case 2: // 윤년은 고려하지 않음
+		if(ST.stopwatchTime.DD > 28) {
+			ST.stopwatchTime.DD -= 28;
+			ST.stopwatchTime.MT++;
+		}
+		break;
+	default: break;
+	}
+	if(ST.stopwatchTime.MT > 12) {
+		ST.stopwatchTime.MT -=  12;
+		ST.stopwatchTime.YY++;
+	}
+
+	// ST.lapTime을 시간 범위 내로 맞추기
+	if(ST.lapTime.MS >= 1000) {
+			ST.lapTime.MS -= 1000;
+		ST.lapTime.SS++;
+	}
+	if(ST.lapTime.SS >= 60) {
+		ST.lapTime.SS -= 60;
+		ST.lapTime.MM++;
+	}
+	if(ST.lapTime.MM >= 60) {
+		ST.lapTime.MM-= 60;
+		ST.lapTime.HH++;
+	}
+	if(ST.lapTime.HH >= 24) {
+		ST.lapTime.HH -= 24;
+		ST.lapTime.DD++;
+	}
+	switch(ST.lapTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
+	case 1:
+	case 3:
+	case 5:
+	case 7:
+	case 8:
+	case 10:
+	case 12:
+		if(ST.lapTime.DD > 31) {
+			ST.lapTime.DD -= 31;
+			ST.lapTime.MT++;
+		}
+		break;
+	case 4:
+	case 6:
+	case 9:
+	case 11:
+		if(ST.lapTime.DD > 30) {
+			ST.lapTime.DD -= 30;
+			ST.lapTime.MT++;
+		}
+		break;
+	case 2: // 윤년은 고려하지 않음
+		if(ST.lapTime.DD > 28) {
+			ST.lapTime.DD -= 28;
+			ST.lapTime.MT++;
+		}
+		break;
+	default: break;
+	}
+	if(ST.lapTime.MT > 12) {
+		ST.lapTime.MT -= 12;
+		ST.lapTime.YY++;
+	}
+	if(ST.lapTime.MS < 0) {
+		ST.stopwatchTime.MS += 1000;
+		ST.stopwatchTime.YY++;
+	}
+	if(ST.lapTime.SS < 0) {
+		ST.lapTime.SS += 60;
+		ST.lapTime.MM--;
+	}
+	if(ST.lapTime.MM < 0) {
+		ST.lapTime.MM += 60;
+		ST.lapTime.HH--;
+	}
+	if(ST.lapTime.HH < 0) {
+		ST.lapTime.HH += 24;
+		ST.lapTime.DD--;
+	}
+	if(ST.lapTime.DD < 0) {
+		switch(ST.lapTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			ST.lapTime.DD += 31;
+			ST.lapTime.MT--;
+			break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			ST.lapTime.DD += 30;
+			ST.lapTime.MT--;
+			break;
+		case 2: // 윤년은 고려하지 않음
+			ST.lapTime.DD += 28;
+			ST.lapTime.MT--;
+			break;
+		default: break;
+		}
+	}
+	if(ST.lapTime.MT < 0) {
+		ST.lapTime.MT += 12;
+		ST.lapTime.YY--;
+	}
+
+	// 2. 자동으로 알람 끄기
+	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
+		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
+	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
+
+	//알람 buzzing모드 켜기
+	if (MD.alarm_indicator) {
+		if (CT.YY == AL.alarmTime.YY && CT.MT == AL.alarmTime.MT && CT.DD == AL.alarmTime.DD && CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
+			if (CT.SS < 5) MD.alarm_buzzing = true; // 현재 시간의 초가 5초 미만이면 알람 끄는것과 같은 논리로 알람이 울리고 있을 수밖에 없다.
+		}
+	}
+
+
+
 }
 void show(int alpha_cat, char list[7][3], int blink_location) {
 	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
@@ -546,7 +723,7 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 	if(alpha_cat == 1) {//Tikekeeping
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
-		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("  ###      %3s       %s/%s      ###\n", list[0], list[1], list[2]);
 		printf("##                                ##\n");
 		printf("##    %s                          ##\n", list[3]);
 		printf("##          %s : %s . %s          ##\n", list[4], list[5], list[6]);
@@ -577,12 +754,39 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 		printf("        ####################\n");
 	}
 }
+void configure_set(char list[7][3], int location, char goal[3]) {
+	//list엔 configure 될 값들이
+	//location엔 0에서 6사이의 변경할 위치
+	//goal에는 바꿀 값이 들어있다
+	list[location][0] = goal[0];
+	list[location][1] = goal[1];
+	list[location][2] = '\0';
+	return;
+}
 
-void Panel_and_Speaker_Controller(){
+void int_to_str(int to, char temp[3]) {
+	// to는 두 자리 이하의 자연수라는 것을 가정하고 사용
+	if (to < 10) {
+		temp[0] = '0';
+		temp[1] = (char)(to + '0');
+		temp[2] = '\0';
+	}
+	else {
+		temp[0] = (char)(to / 10 + '0');
+		temp[1] = (char)(to % 10 + '0');
+		temp[2] = '\0';
+	}
+	return;
+}
+void Panel_and_Speaker_Controller() {
+	if(MD.alarm_buzzing==true){
+		Alarm();
+	}
 	int flag1 = MD.category_alpha;
 	int flag2 = MD.category_beta;
 	char list[7][3]; // configure된 값들을 저장
-	int blink_location;
+	int blink_location = 0;
+	char temp[3] = "  "; // 임시로 쓰일 저장소
 		// 깜빡일 위치를 저장
 		//만약 깜빡임을 구현하기 위해 깜빡일 위치를
 		//표시하여야 할 경우는 0을 저장한다
@@ -590,23 +794,81 @@ void Panel_and_Speaker_Controller(){
 
 	//if문들로 각각에 맞게 configure
 	//configure 된 값들은 모두 2글자의 문자열이다 + 깜빡일 위치
-	switch(flag1) {
-		case 1: // Timekeeping 모드
 
-			break;
-		case 2: // Stopwatch 모드
+	//alarm_indicator의 경우 공통되었으므로 미리 만들어 두었다
+	if (MD.stopwatch_indicator) temp[1] = 'A';
+	configure_set(list, 3, temp);
 
-			break;
-		case 3: // Alarm 모드
-
-			break;
-		default: // 엄밀한 명세에 의하면 없어도 되는 코드
-
+	switch (flag1) {
+	case 1: // Timekeeping 모드
+		//configure_set(list, 0, ""); // CT에 요일 넣어서 완성
+		int_to_str(CT.MM, temp);
+		if (CT.MM < 10) temp[0] = ' ';
+		configure_set(list, 1, temp);
+		int_to_str(CT.DD, temp);
+		configure_set(list, 2, temp);
+		int_to_str(CT.HH, temp);
+		configure_set(list, 4, temp);
+		int_to_str(CT.MM, temp);
+		configure_set(list, 5, temp);
+		int_to_str(CT.SS, temp);
+		configure_set(list, 6, "");
+		switch (flag2) {
+		case 1: defalut: break;
+		case 2: blink_location = 7; break;// 초
+		case 3: blink_location = 5; break;// 시간
+		case 4: blink_location = 6; break;// 분
+		//case 5: blink_location// 년???????????????????
+		case 6: blink_location = 2; break; // 월
+		case 7: blink_location = 3; break;// 일
+		}
+		break;
+	case 2: // Stopwatch 모드
+		configure_set(list, 0, "ST");
+		int_to_str(CT.HH, temp);
+		configure_set(list, 1, temp);
+		int_to_str(CT.MM, temp);
+		configure_set(list, 2, temp);
+		if (flag2 == 1) {//Stopwatch
+			int_to_str(ST.stopwatchTime.MM, temp);
+			configure_set(list, 4, temp);
+			int_to_str(ST.stopwatchTime.SS, temp);
+			configure_set(list, 5, temp);
+			int_to_str(ST.stopwatchTime.MS, temp);
+			configure_set(list, 6, temp);
+		}
+		if (flag2 == 2) {//LAP
+			int_to_str(ST.lapTime.MM, temp);
+			configure_set(list, 4, temp);
+			int_to_str(ST.lapTime.SS, temp);
+			configure_set(list, 5, temp);
+			int_to_str(ST.lapTime.MS, temp);
+			configure_set(list, 6, temp);
+		}
+		break;
+	case 3: // Alarm 모드
+		configure_set(list, 0, "AL");
+		int_to_str(CT.MM, temp);
+		if (CT.MM < 10) temp[0] = ' ';
+		configure_set(list, 1, temp);
+		int_to_str(CT.DD, temp);
+		configure_set(list, 2, temp);
+		int_to_str(AL.alarmTime.HH, temp);
+		configure_set(list, 4, temp);
+		int_to_str(AL.alarmTime.MM, temp);
+		configure_set(list, 5, temp);
+		configure_set(list, 6, "  ");
+		if (flag2 == 2) blink_location = 5; // 시간
+		else if (flag2 == 3) blink_location = 6; // 분
+		break;
+	default: // 엄밀한 명세에 의하면 없어도 되는 코드
 			break;
 	}
 
 
 	//show()를 구현하여 configure된 값들을 표시
+	//1초에 한번씩 깜빡일 예정
+	if (CT.SS % 2) blink_location = 0;
 	show(flag1, list, blink_location);
 
 	return;
@@ -617,12 +879,12 @@ int Backlight_Controller(int backlight){ //색 변경
 	//2가지밖에 없고 이를 번갈아 가며 사용하는 형태
 	if(backlight==COLOR_DEF){
 		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_GRN);
-		printf("Color Change to COLOR_GREEN \n");
+		//printf("Color Change to COLOR_GREEN \n");
 		return COLOR_GRN;
 	}
 	else{
 		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_DEF);
-		printf("Color_Change to COLOR_RED \n");
+		//printf("Color_Change to COLOR_RED \n");
 		return COLOR_DEF;
 	}
 }
@@ -635,6 +897,7 @@ int main(){
 		Button_Operator(Selected_Button);
 		Realtime_Manager();
 		Panel_and_Speaker_Controller();
+		system("clear");
 	}
 	return 0;
 }
