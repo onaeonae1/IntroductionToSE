@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<windows.h>
 #include<time.h>
+#include<sys/timeb.h>
 #include"linux_kbhit.h"
 #include"getch.h"
 #define COLOR_DEF 12
