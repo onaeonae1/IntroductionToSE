@@ -524,6 +524,27 @@ void Button_Operator(int Selected_Button) {
 }
 void Realtime_Manager() {
 	// 1. CT를 동기화 (int 연산들을 시간 범위 내로 맞춰줌)
+	struct _timeb itb;
+	struct tm *now;
+	time_t ltime;
+	int milisec;
+	ftime(&itb);
+	ltime = itb.time;
+	milisec = itb.millitm;
+	now = localtime(&ltime);
+
+	CT.YY = now->tm_year - 1900 - TD.YY;
+	CT.MT = now->tm_mon + 1 - TD.MT;
+	CT.DD = now->tm_mday - TD.DD;
+	CT.HH = now->tm_hour - TD.HH;
+	CT.MM = now->tm_min - TD.MM;
+	CT.SS = now->tm_sec - TD.SS;
+	CT.MS = milisec - TD.MS;
+
+	// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!!!
+	
+	
+	
 	// ST.stopwatchTime 시간 범위 내로 맞추기
 	if(ST.stopwatchTime.MS >= 1000) {
 		ST.stopwatchTime.MS -= 1000;
