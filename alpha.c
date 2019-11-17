@@ -584,8 +584,12 @@ void Realtime_Manager() {
 			ST.stopwatchTime.MT++;
 		}
 		break;
-	case 2: // 윤년은 고려하지 않음
-		if(ST.stopwatchTime.DD > 28) {
+	case 2:
+		if(ST.stopwatchTime.YY % 4 == 0 && ST.stopwatchTime.DD > 29) { // 윤년이고 일수>29인 경우
+			ST.stopwatchTime.DD -= 29;
+			ST.stopwatchTime.MT++;
+		}
+		else if(ST.stopwatchTime.YY % 4 != 0 && ST.stopwatchTime.DD > 28) { // 윤년이 아니고 일수>28인 경우
 			ST.stopwatchTime.DD -= 28;
 			ST.stopwatchTime.MT++;
 		}
@@ -636,8 +640,12 @@ void Realtime_Manager() {
 			ST.lapTime.MT++;
 		}
 		break;
-	case 2: // 윤년은 고려하지 않음
-		if(ST.lapTime.DD > 28) {
+	case 2:
+		if(ST.lapTime.YY % 4 == 0 && ST.lapTime.DD > 29) { // 윤년이고 ST의 일 수 > 29이면
+			ST.lapTime.DD -= 29;
+			ST.lapTime.MT++;
+		}
+		else if(ST.lapTime.YY % 4 == 0 && ST.lapTime.DD > 28) { // 윤년이 아니고 ST의 일 수 > 28이면
 			ST.lapTime.DD -= 28;
 			ST.lapTime.MT++;
 		}
@@ -683,8 +691,9 @@ void Realtime_Manager() {
 			ST.lapTime.DD += 30;
 			ST.lapTime.MT--;
 			break;
-		case 2: // 윤년은 고려하지 않음
-			ST.lapTime.DD += 28;
+		case 2: 
+			if(ST.lapTime.YY % 4 == 0) ST.lapTime.DD += 29; // 윤년인 경우			}
+			else ST.lapTime.DD += 28;
 			ST.lapTime.MT--;
 			break;
 		default: break;
