@@ -128,7 +128,10 @@ int Button_Selector() {
 void Realtime_Manager() {
 	//CT를 동기화해줌
 
-	//알람 끄는거 만들어야 함(자동으로)
+	//자동으로 알람 끄기
+	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
+		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
+	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
 
 	//알람 시간보정 만들어야 함
 
