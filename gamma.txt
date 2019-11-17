@@ -135,7 +135,25 @@ void Panel_and_Speaker_Controller() {
 
 	switch (flag1) {
 	case 1: // Timekeeping 모드
-		//configure_set(list, 0, ""); // CT에 요일 넣어서 완성
+		switch (TD.WD) {
+		case 0://Sunday
+			temp[0] = 'S'; temp[1] = 'U'; break;
+		case 1://Monday
+			temp[0] = 'M'; temp[1] = 'O'; break;
+		case 2://Tuesday
+			temp[0] = 'T'; temp[1] = 'U'; break;
+		case 3://Wendsday
+			temp[0] = 'W'; temp[1] = 'E'; break;
+		case 4://Thursday
+			temp[0] = 'T'; temp[1] = 'H'; break;
+		case 5://Friday
+			temp[0] = 'F'; temp[1] = 'R'; break;
+		case 6://Saturday
+			temp[0] = 'S'; temp[1] = 'A'; break;
+		default: break;
+		}
+		temp[2] = '\0';
+		configure_set(list, 0, temp);
 		int_to_str(CT.MM, temp);
 		if (CT.MM < 10) temp[0] = ' ';
 		configure_set(list, 1, temp);
