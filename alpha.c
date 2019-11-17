@@ -133,7 +133,12 @@ void Realtime_Manager() {
 		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
 	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
 
-	//알람 시간보정 만들어야 함
+	//알람 buzzing모드 켜기
+	if (MD.alarm_indicator) {
+		if (CT.YY == AL.alarmTime.YY && CT.MT == AL.alarmTime.MT && CT.DD == AL.alarmTime.DD && CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
+			if (CT.SS < 5) MD.alarm_buzzing = true; // 현재 시간의 초가 5초 미만이면 알람 끄는것과 같은 논리로 알람이 울리고 있을 수밖에 없다.
+		}
+	}
 
 	if (MD.stopwatch_indicator) { // 스탑워치 시간 보정
 		// 60분이 지나면 알아서 꺼진다.
