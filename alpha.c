@@ -85,8 +85,8 @@ void init(){ //초기화. 프로그램 첫 실행시에 호출됨.
 	milisec = itb.millitm;
 	now = localtime(&ltime);
 	//시간 초기화
-	CT.YY = 2019, CT.MT=1, CT.DD=1, CT.HH=0, CT.MM=0, CT.SS = 0, CT.MS=0;
-	TD.YY = now->tm_year - 100, TD.MT = now->tm_mon + 1, TD.DD = now->tm_mday, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec;
+	CT.YY = 19, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0;
+	TD.YY = now->tm_year - 100 - 19, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec; // 절대시간 - CT로 구하는 값이다.
 	//알람 초기화
 	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0;
 	//스톱워치
