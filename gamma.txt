@@ -148,11 +148,10 @@ void Panel_and_Speaker_Controller() {
 		int_to_str(CT.SS, temp);
 		configure_set(list, 6, "");
 		switch (flag2) {
-		case 1: defalut: break;
+		case 1: case 5: defalut: break; // (1,1)이거나 년도를 바꿀 경우 blink_location = 0이다.
 		case 2: blink_location = 7; break;// 초
 		case 3: blink_location = 5; break;// 시간
 		case 4: blink_location = 6; break;// 분
-		//case 5: blink_location// 년???????????????????
 		case 6: blink_location = 2; break; // 월
 		case 7: blink_location = 3; break;// 일
 		}
