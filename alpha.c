@@ -717,8 +717,8 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 	//결론은, blink_location이 0이면 모든 위치의 화면을 표시,
 	//그렇지 않으면 지정된 위치(blink_location)의 화면을 표시하지 않습니다.
 	if(blink_location) {
-		list[blink_location - 1][0] = '0';
-		list[blink_location - 1][1] = '0';
+		list[blink_location - 1][0] = ' ';
+		list[blink_location - 1][1] = ' ';
 	}
 
 	if(alpha_cat == 1) {//Tikekeeping
@@ -802,7 +802,25 @@ void Panel_and_Speaker_Controller() {
 
 	switch (flag1) {
 	case 1: // Timekeeping 모드
-		//configure_set(list, 0, ""); // CT에 요일 넣어서 완성
+		switch (TD.WD) {
+		case 0://Sunday
+			temp[0] = 'S'; temp[1] = 'U'; break;
+		case 1://Monday
+			temp[0] = 'M'; temp[1] = 'O'; break;
+		case 2://Tuesday
+			temp[0] = 'T'; temp[1] = 'U'; break;
+		case 3://Wendsday
+			temp[0] = 'W'; temp[1] = 'E'; break;
+		case 4://Thursday
+			temp[0] = 'T'; temp[1] = 'H'; break;
+		case 5://Friday
+			temp[0] = 'F'; temp[1] = 'R'; break;
+		case 6://Saturday
+			temp[0] = 'S'; temp[1] = 'A'; break;
+		default: break;
+		}
+		temp[2] = '\0';
+		configure_set(list, 0, temp);
 		int_to_str(CT.MM, temp);
 		if (CT.MM < 10) temp[0] = ' ';
 		configure_set(list, 1, temp);
@@ -815,11 +833,10 @@ void Panel_and_Speaker_Controller() {
 		int_to_str(CT.SS, temp);
 		configure_set(list, 6, "");
 		switch (flag2) {
-		case 1: defalut: break;
+		case 1: case 5: defalut: break; // (1,1)이거나 년도를 바꿀 경우 blink_location = 0이다.
 		case 2: blink_location = 7; break;// 초
 		case 3: blink_location = 5; break;// 시간
 		case 4: blink_location = 6; break;// 분
-		//case 5: blink_location// 년???????????????????
 		case 6: blink_location = 2; break; // 월
 		case 7: blink_location = 3; break;// 일
 		}
