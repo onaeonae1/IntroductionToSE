@@ -56,3 +56,66 @@ void gotoxy(int x, int y) {
 	fflush(stdout);
 
 }
+
+void show(int alpha_cat, char list[8][3], int blink_location) {
+	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
+	//list는 7개의 위치에 해당하는 문자열입니다. 모두 두 글자로 이루어져 있습니다.
+	//blink_location은 깜빡일 화면의 위치를 뜻합니다.(0에서 8의 값을 가집니다)
+	//blink_location이 0일 경우는 모든 화면을 표시합니다. Panel_and_Speaker_Controller에서
+	//시간의 경과를 판별한 뒤, %연산(을 이용할 계획)을 이용하여 깜빡임을 구현합니다.(0과 위치를 적절히 전달)
+	//결론은, blink_location이 0이면 모든 위치의 화면을 표시,
+	//그렇지 않으면 지정된 위치(blink_location)의 화면을 표시하지 않습니다.
+	if (blink_location) {
+		list[blink_location - 1][0] = ' ';
+		list[blink_location - 1][1] = ' ';
+	}
+
+	if (alpha_cat == 1) {//Tikekeeping
+		gotoxy(12, 3); printf("%s    %s-%s/%s", list[0], list[7], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s : %s . %s", list[4], list[5], list[6]);
+		/*
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s : %s . %s          ##\n", list[4], list[5], list[6]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+		*/
+	}
+	else if (alpha_cat == 2) {//Stopwatch
+		gotoxy(12, 3); printf("%s       %s:%s", list[0], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s\'  %s\"  %s", list[4], list[5], list[6]);
+		/*
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s:%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s\'  %s\"  %s          ##\n", list[4], list[5], list[6]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+		*/
+	}
+	else if (alpha_cat == 3) {//Alarm
+		gotoxy(12, 3); printf("%s       %s/%s", list[0], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s : %s", list[4], list[5]);
+		/*
+		printf("        ####################\n");
+		printf("     ###                    ###\n");
+		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("##                                ##\n");
+		printf("##    %s                          ##\n", list[3]);
+		printf("##          %s : %s               ##\n", list[4], list[5]);
+		printf("  ###                          ###\n");
+		printf("     ###                    ###\n");
+		printf("        ####################\n");
+		*/
+	}
+}
