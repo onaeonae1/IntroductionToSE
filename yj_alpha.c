@@ -45,9 +45,289 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 
 
 
+//버튼 오퍼레이터 수정이 없었으므로 전체 코드를 붙입니다. commit되지 않은 부분에 주석이 달려 있습니다.
+void Button_Operator(int Selected_Button) {
+	Bool alarm_buzzing = MD.alarm_buzzing;
+	int category_alpha = MD.category_alpha;
+	int category_beta = MD.category_beta;
+	Bool stopwatch_indicator = MD.stopwatch_indicator;
+	Bool alarm_indicator = MD.alarm_indicator;
 
-// buttonOperator 내부에서 스톱워치 부분
-else if (category_alpha == 2) {
+	// 모드의 대분류(category_alpha)-소분류(category_beta)-Selected_Button 순서로 작성
+	if (alarm_buzzing) { //알람 울리기가 최우선
+		if (Selected_Button == 0) {
+			// 버튼이 눌리지 않으면 5초 동안 가만히 있다가 스스로 종료
+		}
+		else { // 알람을 끔
+			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
+			AL.alarmTime.YY = 19;
+			AL.alarmTime.MT = 1;
+			AL.alarmTime.DD = 1;
+			AL.alarmTime.HH = 0;
+			AL.alarmTime.MM = 0;
+			AL.alarmTime.SS = 0;
+			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
+		}
+	}
+	else {
+		if (category_alpha == 1) {
+			switch (category_beta) {
+			case 1: // 1.1 timekeeping
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 2;
+					break;
+				case 2: // B
+					break;
+				case 3: // C
+					MD.category_alpha = 2;
+					MD.category_beta = 1;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 2: // 1.2 timekeeping_change_sec
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.SS == 59) TD.SS -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.SS++; // 현재 시각 초 1 증가
+					// stopwatch 시작 초도 같이 늘려주기
+					if (ST.startTime.SS == 59) {
+						ST.startTime.SS = 0;
+						ST.startTime.MM++;
+					}
+					else ST.startTime.SS++;
+					break;
+				case 3: // C
+					MD.category_beta = 3;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 3: // 1.3 timekeeping_change_hr
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.HH == 23) TD.HH -= 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.HH++; // 현재 시각 시간 1 증가
+					// stopwatch 시작 시간도 같이 늘려주기
+					if (ST.startTime.HH == 23) {
+						ST.startTime.HH = 0;
+						ST.startTime.DD++;
+					}
+					else ST.startTime.HH++;
+					break;
+				case 3: // C
+					MD.category_beta = 4;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 4: // 1.4 timekeeping_change_min
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.MM == 59) TD.MM -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.MM++; // 현재 시각 분 1 증가
+					// stopwatch 시작 분도 같이 늘려주기
+					if (ST.startTime.MM == 59) {
+						ST.startTime.MM = 0;
+						ST.startTime.HH++;
+					}
+					else ST.startTime.MM++;
+					break;
+				case 3: // C
+					MD.category_beta = 5;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 5: // 1.5 timekeeping_change_yr
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.YY == 99) TD.YY -= 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.YY++; // 현재 시각 년 1 증가
+					// stopwatch 시작 년도 같이 늘려주기
+					if (ST.startTime.YY == 99) ST.startTime.YY = 19;
+					else ST.startTime.YY++;
+					break;
+				case 3: // C
+					MD.category_beta = 6;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 6: // 1.6 timekeeping_change_mnth
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					if (CT.MT == 12) TD.MT -= 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.MT++; // 현재 시각 달 1 증가
+					// stopwatch 시작 월도 같이 늘려주기
+					if (ST.startTime.MT == 12) {
+						ST.startTime.MT = 0;
+						ST.startTime.YY++;
+					}
+					else ST.startTime.MT++;
+					break;
+				case 3: // C
+					MD.category_beta = 7;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 7: // 1.7 timekeeping_change_day
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 1;
+					break;
+				case 2: // B
+					// 최대치가 된 상태에서 다시 입력하면 최저값으로
+					switch (CT.MT) {
+						// 한 달에 31일이 있는 경우
+					case 1:
+					case 3:
+					case 5:
+					case 7:
+					case 8:
+					case 10:
+					case 12:
+						if (CT.DD == 31) TD.DD -= 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						else TD.DD++;
+						// stopwatch 시작 일도 같이 늘려주기
+						if (ST.startTime.DD == 31) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
+						break;
+						// 한 달에 28일이 있는 경우
+					case 2:
+						if (CT.YY % 4 == 0) { // 윤년이면
+							if (CT.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+							else TD.DD++;
+						}
+						else { // 윤년이 아닌 경우에는
+							if (CT.DD == 28) TD.DD -= 28;
+							else TD.DD++;
+						}
+						// stopwatch 시작 일도 같이 늘려주기
+						if (ST.startTime.YY % 4 == 0) { // stopwatch가 윤년이면
+							if (ST.startTime.DD == 29) {
+								ST.startTime.DD = 1;
+								ST.startTime.MT++;
+							}
+							else ST.startTime.DD++;
+						}
+						else { // stopwatch 설정 연도가 윤년이 아닌 경우에는
+							if (ST.startTime.DD == 28) {
+								ST.startTime.DD = 1;
+								ST.startTime.MT++;
+							}
+							else ST.startTime.DD++;
+						}
+						break;
+						// 한 달에 30일이 있는 경우
+					case 4:
+					case 6:
+					case 9:
+					case 11:
+						if (CT.DD == 30) TD.DD -= 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						else TD.DD++;
+						// stopwatch 시작 일도 같이 늘려주기
+						if (ST.startTime.DD == 30) {
+							ST.startTime.DD = 1;
+							ST.startTime.MT++;
+						}
+						else ST.startTime.DD++;
+						break;
+					}
+					break;
+				case 3: // C
+					MD.category_beta = 2;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			default: break;
+			}
+		}
+		else if (category_alpha == 2) {
 			switch (category_beta) {
 			case 1: // 2.1 stopwatch
 				switch (Selected_Button) {
@@ -128,8 +408,14 @@ else if (category_alpha == 2) {
 					MD.category_alpha = 3;
 					MD.category_beta = 1;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -145,8 +431,14 @@ else if (category_alpha == 2) {
 					MD.category_alpha = 3;
 					MD.category_beta = 1;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -154,8 +446,79 @@ else if (category_alpha == 2) {
 			default: break;
 			}
 		}
-    
-    
+		else { // MD.category_alpha == 3
+			switch (category_beta) {
+			case 1: // 3.1 alarm
+				switch (Selected_Button) {
+				case 1: // A
+					MD.category_beta = 2;
+					break;
+				case 2: // B
+					break;
+				case 3: // C
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 2: // 3.2 alarm_change_hr
+				switch (Selected_Button) {
+				case 1: // A
+					break;
+				case 2: // B
+					if (AL.alarmTime.HH == 23) AL.alarmTime.HH = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else AL.alarmTime.HH++; // 알람 시작 시간 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 3;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			case 3: // alarm_change_min
+				switch (Selected_Button) {
+				case 1: // A
+					break;
+				case 2: // B
+					if (AL.alarmTime.MM = 59) AL.alarmTime.MM = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					AL.alarmTime.MM++; // 알람 시작 분 1 증가
+					break;
+				case 3: // C
+					MD.category_beta = 2;
+					break;
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
+					break;
+				default: break;
+				}
+				break;
+			}
+		}
+	}
+}
     
     
     
