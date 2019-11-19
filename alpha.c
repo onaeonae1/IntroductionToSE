@@ -712,7 +712,7 @@ void Realtime_Manager() {
 
 
 }
-void show(int alpha_cat, char list[7][3], int blink_location) {
+void show(int alpha_cat, char list[8][3], int blink_location) {
 	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
 	//list는 7개의 위치에 해당하는 문자열입니다. 모두 두 글자로 이루어져 있습니다.
 	//blink_location은 깜빡일 화면의 위치를 뜻합니다.(0에서 7의 값을 가집니다)
@@ -720,23 +720,32 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 	//시간의 경과를 판별한 뒤, %연산(을 이용할 계획)을 이용하여 깜빡임을 구현합니다.(0과 위치를 적절히 전달)
 	//결론은, blink_location이 0이면 모든 위치의 화면을 표시,
 	//그렇지 않으면 지정된 위치(blink_location)의 화면을 표시하지 않습니다.
-	if(blink_location) {
+	if (blink_location) {
 		list[blink_location - 1][0] = ' ';
 		list[blink_location - 1][1] = ' ';
 	}
 
-	if(alpha_cat == 1) {//Tikekeeping
+	if (alpha_cat == 1) {//Tikekeeping
+		gotoxy(11, 2); printf("%s    %s-%s/%s", list[0], list[7], list[1], list[2]);
+		gotoxy(6, 4); printf("%s", list[3]);
+		gotoxy(12, 5); printf("%s : %s . %s", list[4], list[5], list[6]);
+		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
-		printf("  ###      %3s       %s/%s      ###\n", list[0], list[1], list[2]);
+		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
 		printf("##                                ##\n");
 		printf("##    %s                          ##\n", list[3]);
 		printf("##          %s : %s . %s          ##\n", list[4], list[5], list[6]);
 		printf("  ###                          ###\n");
 		printf("     ###                    ###\n");
 		printf("        ####################\n");
+		*/
 	}
-	else if(alpha_cat == 2) {//Stopwatch
+	else if (alpha_cat == 2) {//Stopwatch
+		gotoxy(11, 2); printf("%s       %s:%s", list[0], list[1], list[2]);
+		gotoxy(6, 4); printf("%s", list[3]);
+		gotoxy(12, 5); printf("%s\'  %s\"  %s", list[4], list[5], list[6]);
+		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
 		printf("  ###      %s       %s:%s      ###\n", list[0], list[1], list[2]);
@@ -746,8 +755,13 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 		printf("  ###                          ###\n");
 		printf("     ###                    ###\n");
 		printf("        ####################\n");
+		*/
 	}
-	else if(alpha_cat == 3) {//Alarm
+	else if (alpha_cat == 3) {//Alarm
+		gotoxy(11, 2); printf("%s       %s/%s", list[0], list[1], list[2]);
+		gotoxy(6, 4); printf("%s", list[3]);
+		gotoxy(12, 5); printf("%s : %s", list[4], list[5]);
+		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
 		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
@@ -757,9 +771,10 @@ void show(int alpha_cat, char list[7][3], int blink_location) {
 		printf("  ###                          ###\n");
 		printf("     ###                    ###\n");
 		printf("        ####################\n");
+		*/
 	}
 }
-void configure_set(char list[7][3], int location, char goal[3]) {
+void configure_set(char list[8][3], int location, char goal[3]) {
 	//list엔 configure 될 값들이
 	//location엔 0에서 6사이의 변경할 위치
 	//goal에는 바꿀 값이 들어있다
@@ -789,7 +804,7 @@ void Panel_and_Speaker_Controller() {
 	}
 	int flag1 = MD.category_alpha;
 	int flag2 = MD.category_beta;
-	char list[7][3]; // configure된 값들을 저장
+	char list[8][3]; // configure된 값들을 저장
 	int blink_location = 0;
 	char temp[3] = "  "; // 임시로 쓰일 저장소
 		// 깜빡일 위치를 저장
@@ -803,6 +818,7 @@ void Panel_and_Speaker_Controller() {
 	//alarm_indicator의 경우 공통되었으므로 미리 만들어 두었다
 	if (MD.stopwatch_indicator) temp[1] = 'A';
 	configure_set(list, 3, temp);
+	list[7][0] = ' '; list[7][1] = ' '; list[7][2] = '\0';
 
 	switch (flag1) {
 	case 1: // Timekeeping 모드
@@ -836,10 +852,13 @@ void Panel_and_Speaker_Controller() {
 		configure_set(list, 5, temp);
 		int_to_str(CT.SS, temp);
 		configure_set(list, 6, "");
+		int_to_str(CT.YY - 100, temp);
+		configure_set(list, 7, temp);
 		switch (flag2) {
-		case 1: case 5: defalut: break; // (1,1)이거나 년도를 바꿀 경우 blink_location = 0이다.
+		case 1: defalut: break; // (1,1)일 경우 blink_location = 0이다.
 		case 2: blink_location = 7; break;// 초
 		case 3: blink_location = 5; break;// 시간
+		case 5: blink_location = 8; break;// 년
 		case 4: blink_location = 6; break;// 분
 		case 6: blink_location = 2; break; // 월
 		case 7: blink_location = 3; break;// 일
