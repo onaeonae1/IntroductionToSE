@@ -42,14 +42,17 @@ typedef struct StopWatch {
 	Time initialTime; // commit 안 됨
 
 }stopwatch;
+typedef struct Backlight{
+	Time BacklightTime; //backlight 켜기 시작한 시간
+	int value; //backlight 색깔 값
+}backlight;
 //Data Store들 선언하기
 alm AL; //알람
 stopwatch ST; //스톱워치
 mode MD; //모드
 Time CT; //현재 시간
 Time TD; //절대 시간과의 차이
-Time BacklightTime; //백라이트 시간, commit 안 됨
-int Backlight; //글자색
+backlight BC;
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
 	if(input=='a' || input =='A'){
@@ -83,6 +86,12 @@ void Alarm(){ //소리 울리기
 	printf("\a");
 }
 void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해야 함, ST.initialTime.XX가 커밋되지 않음
+	//커서 설정
+	 HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	 CONSOLE_CURSOR_INFO info;
+	 info.dwSize = 100;
+	 info.bVisible = FALSE;
+	 SetConsoleCursorInfo(consoleHandle, &info);
 	//절대 시간 선언
 	struct timeb itb;
 	struct tm *now;
@@ -103,11 +112,27 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	ST.lapTime.YY = 0, ST.lapTime.MT = 0, ST.lapTime.DD = 0, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
 	ST.initialTime.YY = 0, ST.initialTime.MT = 0, ST.initialTime.DD = 0, ST.initialTime.HH = 0, ST.initialTime.MM = 0, ST.initialTime.SS = 0, ST.initialTime.MS = 0, ST.initialTime.WD = -1; // commint 안 됨
 	//백라이트
-	BacklightTime.YY = 0, BacklightTime.MT = 0, BacklightTime.DD = 0, BacklightTime.HH = 0, BacklightTime.MM = 0, BacklightTime.SS = 0, BacklightTime.MS = 0, BacklightTime.WD = -1; // commint 안 됨
+	BC.value = COLOR_DEF;
+	Backlight_Controller(BC.value);
+	BC.BacklightTime.YY = 0, BC.BacklightTime.MT = 0, BC.BacklightTime.DD = 0, BC.BacklightTime.HH = 0, BC.BacklightTime.MM = 0, BC.BacklightTime.SS = 0, BC.BacklightTime.MS = 0, BC.BacklightTime.WD = -1; // commint 안 됨
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
-	Backlight = Backlight_Controller(COLOR_GRN);
+	//백라이트 초기화
+
+
+
+	//show에 관한 초기화
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###                          ###\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
+
 }
 int Button_Selector() {
 	//sleep(1);
@@ -189,13 +214,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -219,13 +244,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -249,13 +274,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 4;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -279,13 +304,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 5;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -306,13 +331,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 6;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -336,13 +361,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 7;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -418,13 +443,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -514,13 +539,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -537,13 +562,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -563,13 +588,13 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -586,13 +611,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -609,13 +634,13 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
-					BacklightTime.YY = CT.YY;
-					BacklightTime.MT = CT.MT;
-					BacklightTime.DD = CT.DD;
-					BacklightTime.HH = CT.HH;
-					BacklightTime.MM = CT.MM;
-					BacklightTime.SS = CT.SS;
-					BacklightTime.MS = CT.MS;
+					BC.BacklightTime.YY = CT.YY;
+					BC.BacklightTime.MT = CT.MT;
+					BC.BacklightTime.DD = CT.DD;
+					BC.BacklightTime.HH = CT.HH;
+					BC.BacklightTime.MM = CT.MM;
+					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -632,7 +657,7 @@ Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는�
 	time_t rawtime;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	timeinfo->tm_year = year;
+	timeinfo->tm_year = (year%200) + 119;
 	timeinfo->tm_mon = month;
 	timeinfo->tm_mday = day;
 	timeinfo->tm_hour = hour;
@@ -681,7 +706,8 @@ void Realtime_Manager() {
 	// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!!!
 	//CT 보정
 	CT = timeCheck(&CT);
-
+	printf("%d %d %d %d %d %d \n", CT.YY, CT.MT, CT.DD, CT.HH, CT.MM, CT.SS);
+	//printf("%d %d %d %d %d %d\n", CT.YY, CT.MT, CT.DD, CT.HH, CT.MM, CT.SS);
 	if (MD.stopwatch_indicator) {
 			ST.stopwatchTime.YY = CT.YY - ST.startTime.YY + ST.initialTime.YY;
 			ST.stopwatchTime.MT = CT.MT - ST.startTime.MT + ST.initialTime.MT;
@@ -712,10 +738,17 @@ void Realtime_Manager() {
 
 
 }
+void gotoxy(int x, int y) {
+
+	printf("\033[%d;%df", y, x);
+
+	fflush(stdout);
+
+}
 void show(int alpha_cat, char list[8][3], int blink_location) {
 	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
 	//list는 7개의 위치에 해당하는 문자열입니다. 모두 두 글자로 이루어져 있습니다.
-	//blink_location은 깜빡일 화면의 위치를 뜻합니다.(0에서 7의 값을 가집니다)
+	//blink_location은 깜빡일 화면의 위치를 뜻합니다.(0에서 8의 값을 가집니다)
 	//blink_location이 0일 경우는 모든 화면을 표시합니다. Panel_and_Speaker_Controller에서
 	//시간의 경과를 판별한 뒤, %연산(을 이용할 계획)을 이용하여 깜빡임을 구현합니다.(0과 위치를 적절히 전달)
 	//결론은, blink_location이 0이면 모든 위치의 화면을 표시,
@@ -726,9 +759,9 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 	}
 
 	if (alpha_cat == 1) {//Tikekeeping
-		gotoxy(11, 2); printf("%s    %s-%s/%s", list[0], list[7], list[1], list[2]);
-		gotoxy(6, 4); printf("%s", list[3]);
-		gotoxy(12, 5); printf("%s : %s . %s", list[4], list[5], list[6]);
+		gotoxy(12, 3); printf("%s    %s-%s/%s", list[0], list[7], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s : %s . %s", list[4], list[5], list[6]);
 		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
@@ -742,9 +775,9 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		*/
 	}
 	else if (alpha_cat == 2) {//Stopwatch
-		gotoxy(11, 2); printf("%s       %s:%s", list[0], list[1], list[2]);
-		gotoxy(6, 4); printf("%s", list[3]);
-		gotoxy(12, 5); printf("%s\'  %s\"  %s", list[4], list[5], list[6]);
+		gotoxy(12, 3); printf("%s       %s:%s", list[0], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s\'  %s\"  %s", list[4], list[5], list[6]);
 		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
@@ -758,9 +791,9 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		*/
 	}
 	else if (alpha_cat == 3) {//Alarm
-		gotoxy(11, 2); printf("%s       %s/%s", list[0], list[1], list[2]);
-		gotoxy(6, 4); printf("%s", list[3]);
-		gotoxy(12, 5); printf("%s : %s", list[4], list[5]);
+		gotoxy(12, 3); printf("%s       %s/%s", list[0], list[1], list[2]);
+		gotoxy(7, 5); printf("%s", list[3]);
+		gotoxy(13, 6); printf("%s : %s", list[4], list[5]);
 		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
@@ -774,7 +807,7 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		*/
 	}
 }
-void configure_set(char list[8][3], int location, char goal[3]) {
+void configure_set(char list[7][3], int location, char goal[3]) {
 	//list엔 configure 될 값들이
 	//location엔 0에서 6사이의 변경할 위치
 	//goal에는 바꿀 값이 들어있다
@@ -799,7 +832,7 @@ void int_to_str(int to, char temp[3]) {
 	return;
 }
 void Panel_and_Speaker_Controller() {
-	if(MD.alarm_buzzing==true){
+	if (MD.alarm_buzzing == true) {
 		Alarm();
 	}
 	int flag1 = MD.category_alpha;
@@ -822,7 +855,7 @@ void Panel_and_Speaker_Controller() {
 
 	switch (flag1) {
 	case 1: // Timekeeping 모드
-		switch (TD.WD) {
+		switch (CT.WD) {
 		case 0://Sunday
 			temp[0] = 'S'; temp[1] = 'U'; break;
 		case 1://Monday
@@ -841,8 +874,8 @@ void Panel_and_Speaker_Controller() {
 		}
 		temp[2] = '\0';
 		configure_set(list, 0, temp);
-		int_to_str(CT.MM, temp);
-		if (CT.MM < 10) temp[0] = ' ';
+		int_to_str(CT.MT + 1, temp);
+		if (CT.MT + 1 < 10) temp[0] = ' ';
 		configure_set(list, 1, temp);
 		int_to_str(CT.DD, temp);
 		configure_set(list, 2, temp);
@@ -851,14 +884,13 @@ void Panel_and_Speaker_Controller() {
 		int_to_str(CT.MM, temp);
 		configure_set(list, 5, temp);
 		int_to_str(CT.SS, temp);
-		configure_set(list, 6, "");
+		configure_set(list, 6, temp);
 		int_to_str(CT.YY - 100, temp);
 		configure_set(list, 7, temp);
 		switch (flag2) {
-		case 1: defalut: break; // (1,1)일 경우 blink_location = 0이다.
+		case 1: case 5: defalut: break; // (1,1)이거나 년도를 바꿀 경우 blink_location = 0이다.
 		case 2: blink_location = 7; break;// 초
 		case 3: blink_location = 5; break;// 시간
-		case 5: blink_location = 8; break;// 년
 		case 4: blink_location = 6; break;// 분
 		case 6: blink_location = 2; break; // 월
 		case 7: blink_location = 3; break;// 일
@@ -889,8 +921,8 @@ void Panel_and_Speaker_Controller() {
 		break;
 	case 3: // Alarm 모드
 		configure_set(list, 0, "AL");
-		int_to_str(CT.MM, temp);
-		if (CT.MM < 10) temp[0] = ' ';
+		int_to_str(CT.MT + 1, temp);
+		if (CT.MT + 1 < 10) temp[0] = ' ';
 		configure_set(list, 1, temp);
 		int_to_str(CT.DD, temp);
 		configure_set(list, 2, temp);
@@ -903,28 +935,19 @@ void Panel_and_Speaker_Controller() {
 		else if (flag2 == 3) blink_location = 6; // 분
 		break;
 	default: // 엄밀한 명세에 의하면 없어도 되는 코드
-			break;
+		break;
 	}
 	//show()를 구현하여 configure된 값들을 표시
 	//1초에 한번씩 깜빡일 예정
 	if (CT.SS % 2) blink_location = 0;
-	show(flag1, list, blink_location);
+	//show(flag1, list, blink_location);
 
 	return;
 }
-int Backlight_Controller(int backlight){ //색 변경
-	//backlight가 COLOR_DEF라면 -> COLOR_GRN으로 변경
-	//backlight가 COLOR_GRN라면 -> COLOR_DEF로 변경
-	//2가지밖에 없고 이를 번갈아 가며 사용하는 형태
-	if(backlight==COLOR_DEF){
-		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_GRN);
-		//printf("Color Change to COLOR_GREEN \n");
-		return COLOR_GRN;
-	}
-	else{
-		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), COLOR_DEF);
-		//printf("Color_Change to COLOR_RED \n");
-		return COLOR_DEF;
+int Backlight_Controller(){ //색 변경
+	//요청된 backlight 색깔대로 변경하는 형태
+	if(BC.value==COLOR_DEF || BC.value==COLOR_GRN){
+		SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), BC.value);
 	}
 }
 int main(){
@@ -936,7 +959,6 @@ int main(){
 		Button_Operator(Selected_Button);
 		Realtime_Manager();
 		Panel_and_Speaker_Controller();
-		system("clear");
 	}
 	return 0;
 }
