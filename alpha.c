@@ -833,7 +833,7 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 	else if (alpha_cat == 3) {//Alarm
 		gotoxy(12, 3); printf("%s       %s/%s", list[0], list[1], list[2]);
 		gotoxy(7, 5); printf("%s", list[3]);
-		gotoxy(13, 6); printf("%s : %s", list[4], list[5]);
+		gotoxy(13, 6); printf("%s : %s       ", list[4], list[5]);
 		/*
 		printf("        ####################\n");
 		printf("     ###                    ###\n");
