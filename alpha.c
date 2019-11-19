@@ -562,6 +562,8 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 2: // B
+					if(MD.alarm_indicator) MD.alarm_indicator = false;
+					else MD.alarm_indicator = true;
 					break;
 				case 3: // C
 					MD.category_alpha = 1;
