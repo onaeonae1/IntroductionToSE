@@ -824,7 +824,7 @@ void Panel_and_Speaker_Controller() {
 	//configure 된 값들은 모두 2글자의 문자열이다 + 깜빡일 위치
 
 	//alarm_indicator의 경우 공통되었으므로 미리 만들어 두었다
-	if (MD.stopwatch_indicator) temp[1] = 'A';
+	if (MD.alarm_indicator) temp[1] = 'A';
 	configure_set(list, 3, temp);
 	list[7][0] = ' '; list[7][1] = ' '; list[7][2] = '\0';
 
