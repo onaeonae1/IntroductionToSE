@@ -59,7 +59,8 @@ Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는�
 	timeinfo->tm_mday = day;
 	timeinfo->tm_hour = hour;
 	timeinfo->tm_min = min;
-	timeinfo->tm_sec = sec;
+	if(dest->MS < 0) timeinfo->tm_sec = sec - 1;
+	else timeinfo->tm_sec = sec;
 	mktime(timeinfo);
 
 	Time ret;
@@ -70,7 +71,8 @@ Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는�
 	ret.MM = timeinfo->tm_min;
 	ret.SS = timeinfo->tm_sec;
 	ret.WD = timeinfo->tm_wday;
-	ret.MS = dest->MS;
+	if(dest->MS < 0) ret.MS = dest->MS + 1000;
+	else ret.MS = dest->MS;
 	return ret;
 }
 void configure_set(char list[7][3], int location, char goal[3]) {
