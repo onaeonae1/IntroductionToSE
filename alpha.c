@@ -586,6 +586,7 @@ void Button_Operator(int Selected_Button) {
 				case 2: // B
 					break;
 				case 3: // C
+					MD.category_alpha = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
 					BC.BacklightTime.YY = CT.YY;
