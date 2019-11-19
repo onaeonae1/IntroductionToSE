@@ -32,4 +32,18 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
 	//백라이트 초기화
+	
+	
+	
+	//show에 관한 초기화
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###                          ###\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
+
 }
