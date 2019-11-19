@@ -736,7 +736,7 @@ void Realtime_Manager() {
 
 	//알람 buzzing모드 켜기
 	if (MD.alarm_indicator) {
-		if (CT.YY == AL.alarmTime.YY && CT.MT == AL.alarmTime.MT && CT.DD == AL.alarmTime.DD && CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
+		if (CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
 			if (CT.SS < 5) MD.alarm_buzzing = true; // 현재 시간의 초가 5초 미만이면 알람 끄는것과 같은 논리로 알람이 울리고 있을 수밖에 없다.
 		}
 	}
