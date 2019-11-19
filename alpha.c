@@ -1,7 +1,9 @@
+//전체
 #include<stdio.h>
 #include<windows.h>
 #include<time.h>
 #include<sys/timeb.h>
+#include<string.h>
 #include"linux_kbhit.h"
 #include"getch.h"
 #define COLOR_DEF 12
@@ -32,11 +34,12 @@ typedef struct Time{
 typedef struct Alm{ //시작 시간
 	Time alarmTime;
 }alm;
-typedef struct StopWatch{
+typedef struct StopWatch {
 	//LapTime은 StartTime을 기반으로 업데이트 된다.
 	Time stopwatchTime;
 	Time startTime;
 	Time lapTime;
+	Time initialTime; // commit 안 됨
 
 }stopwatch;
 //Data Store들 선언하기
@@ -45,6 +48,7 @@ stopwatch ST; //스톱워치
 mode MD; //모드
 Time CT; //현재 시간
 Time TD; //절대 시간과의 차이
+Time BacklightTime; //백라이트 시간, commit 안 됨
 int Backlight; //글자색
 //0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
 Bool buttonA_interface(char input){
@@ -78,9 +82,9 @@ Bool buttonD_interface(char input){
 void Alarm(){ //소리 울리기
 	printf("\a");
 }
-void init() { //초기화. 프로그램 첫 실행시에 호출됨.
+void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해야 함, ST.initialTime.XX가 커밋되지 않음
 	//절대 시간 선언
-	struct _timeb itb;
+	struct timeb itb;
 	struct tm *now;
 	time_t ltime;
 	int milisec;
@@ -89,14 +93,17 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨.
 	milisec = itb.millitm;
 	now = localtime(&ltime);
 	//시간 초기화
-	CT.YY = 19, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0, CT.WD = -1;
-	TD.YY = now->tm_year - 100 - 19, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec, TD.WD = now->tm_wday;
+	CT.YY = 19, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0, CT.WD = -1; // 요일 수정 필요
+	TD.YY = now->tm_year - 100 - 19, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec, TD.WD = -1;
 	//알람 초기화
-	AL.alarmTime.YY = 2019, AL.alarmTime.MT = 1, AL.alarmTime.DD = 1, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0, AL.alarmTime.WD = -1;
+	AL.alarmTime.YY = 0, AL.alarmTime.MT = 0, AL.alarmTime.DD = 0, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0, AL.alarmTime.WD = -1;
 	//스톱워치
-	ST.stopwatchTime.YY = 2019, ST.stopwatchTime.MT = 1, ST.stopwatchTime.DD = 1, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0, ST.stopwatchTime.WD = -1;
-	ST.startTime.YY = 2019, ST.startTime.MT = 1, ST.startTime.DD = 1, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0, ST.startTime.WD = -1;
-	ST.lapTime.YY = 2019, ST.lapTime.MT = 1, ST.lapTime.DD = 1, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
+	ST.stopwatchTime.YY = 0, ST.stopwatchTime.MT = 0, ST.stopwatchTime.DD = 0, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0, ST.stopwatchTime.WD = -1;
+	ST.startTime.YY = 0, ST.startTime.MT = 0, ST.startTime.DD = 0, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0, ST.startTime.WD = -1;
+	ST.lapTime.YY = 0, ST.lapTime.MT = 0, ST.lapTime.DD = 0, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
+	ST.initialTime.YY = 0, ST.initialTime.MT = 0, ST.initialTime.DD = 0, ST.initialTime.HH = 0, ST.initialTime.MM = 0, ST.initialTime.SS = 0, ST.initialTime.MS = 0, ST.initialTime.WD = -1; // commint 안 됨
+	//백라이트
+	BacklightTime.YY = 0, BacklightTime.MT = 0, BacklightTime.DD = 0, BacklightTime.HH = 0, BacklightTime.MM = 0, BacklightTime.SS = 0, BacklightTime.MS = 0, BacklightTime.WD = -1; // commint 안 됨
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
@@ -181,8 +188,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_alpha = 2;
 					MD.category_beta = 1;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -196,7 +209,7 @@ void Button_Operator(int Selected_Button) {
 					if (CT.SS == 59) TD.SS -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.SS++; // 현재 시각 초 1 증가
 					// stopwatch 시작 초도 같이 늘려주기
-					if(ST.startTime.SS == 59) {
+					if (ST.startTime.SS == 59) {
 						ST.startTime.SS = 0;
 						ST.startTime.MM++;
 					}
@@ -205,8 +218,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 3;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -220,7 +239,7 @@ void Button_Operator(int Selected_Button) {
 					if (CT.HH == 23) TD.HH -= 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.HH++; // 현재 시각 시간 1 증가
 					// stopwatch 시작 시간도 같이 늘려주기
-					if(ST.startTime.HH == 23) {
+					if (ST.startTime.HH == 23) {
 						ST.startTime.HH = 0;
 						ST.startTime.DD++;
 					}
@@ -229,8 +248,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 4;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -244,7 +269,7 @@ void Button_Operator(int Selected_Button) {
 					if (CT.MM == 59) TD.MM -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.MM++; // 현재 시각 분 1 증가
 					// stopwatch 시작 분도 같이 늘려주기
-					if(ST.startTime.MM == 59) {
+					if (ST.startTime.MM == 59) {
 						ST.startTime.MM = 0;
 						ST.startTime.HH++;
 					}
@@ -253,8 +278,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 5;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -268,14 +299,20 @@ void Button_Operator(int Selected_Button) {
 					if (CT.YY == 99) TD.YY -= 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.YY++; // 현재 시각 년 1 증가
 					// stopwatch 시작 년도 같이 늘려주기
-					if(ST.startTime.YY == 99) ST.startTime.YY = 19;
+					if (ST.startTime.YY == 99) ST.startTime.YY = 19;
 					else ST.startTime.YY++;
 					break;
 				case 3: // C
 					MD.category_beta = 6;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -289,7 +326,7 @@ void Button_Operator(int Selected_Button) {
 					if (CT.MT == 12) TD.MT -= 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else TD.MT++; // 현재 시각 달 1 증가
 					// stopwatch 시작 월도 같이 늘려주기
-					if(ST.startTime.MT == 12) {
+					if (ST.startTime.MT == 12) {
 						ST.startTime.MT = 0;
 						ST.startTime.YY++;
 					}
@@ -298,8 +335,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 7;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -312,7 +355,7 @@ void Button_Operator(int Selected_Button) {
 				case 2: // B
 					// 최대치가 된 상태에서 다시 입력하면 최저값으로
 					switch (CT.MT) {
-					// 한 달에 31일이 있는 경우
+						// 한 달에 31일이 있는 경우
 					case 1:
 					case 3:
 					case 5:
@@ -323,39 +366,39 @@ void Button_Operator(int Selected_Button) {
 						if (CT.DD == 31) TD.DD -= 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 						else TD.DD++;
 						// stopwatch 시작 일도 같이 늘려주기
-						if(ST.startTime.DD == 31) {
+						if (ST.startTime.DD == 31) {
 							ST.startTime.DD = 1;
 							ST.startTime.MT++;
 						}
 						else ST.startTime.DD++;
 						break;
-					// 한 달에 28일이 있는 경우
+						// 한 달에 28일이 있는 경우
 					case 2:
-						if(CT.YY % 4 == 0) { // 윤년이면
-							if(CT.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						if (CT.YY % 4 == 0) { // 윤년이면
+							if (CT.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 							else TD.DD++;
 						}
 						else { // 윤년이 아닌 경우에는
-							if(CT.DD == 28) TD.DD -= 28;
+							if (CT.DD == 28) TD.DD -= 28;
 							else TD.DD++;
 						}
 						// stopwatch 시작 일도 같이 늘려주기
-						if(ST.startTime.YY % 4 == 0) { // stopwatch가 윤년이면
-							if(ST.startTime.DD == 29) {
+						if (ST.startTime.YY % 4 == 0) { // stopwatch가 윤년이면
+							if (ST.startTime.DD == 29) {
 								ST.startTime.DD = 1;
 								ST.startTime.MT++;
 							}
 							else ST.startTime.DD++;
 						}
 						else { // stopwatch 설정 연도가 윤년이 아닌 경우에는
-							if(ST.startTime.DD == 28) {
+							if (ST.startTime.DD == 28) {
 								ST.startTime.DD = 1;
 								ST.startTime.MT++;
 							}
 							else ST.startTime.DD++;
 						}
 						break;
-					// 한 달에 30일이 있는 경우
+						// 한 달에 30일이 있는 경우
 					case 4:
 					case 6:
 					case 9:
@@ -363,7 +406,7 @@ void Button_Operator(int Selected_Button) {
 						if (CT.DD == 30) TD.DD -= 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 						else TD.DD++;
 						// stopwatch 시작 일도 같이 늘려주기
-						if(ST.startTime.DD == 30) {
+						if (ST.startTime.DD == 30) {
 							ST.startTime.DD = 1;
 							ST.startTime.MT++;
 						}
@@ -374,8 +417,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 2;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -388,7 +437,7 @@ void Button_Operator(int Selected_Button) {
 			case 1: // 2.1 stopwatch
 				switch (Selected_Button) {
 				case 1: // A
-					if (stopwatch_indicator == 0) {
+					if (stopwatch_indicator == 0) { // commit  안 됨
 						// ST.stopwatchTime = 0을 해줌
 						ST.stopwatchTime.YY = 0;
 						ST.stopwatchTime.MT = 0;
@@ -405,6 +454,22 @@ void Button_Operator(int Selected_Button) {
 						ST.startTime.MM = 0;
 						ST.startTime.SS = 0;
 						ST.startTime.MS = 0;
+						// ST.initialTime = 0을 해줌
+						ST.initialTime.YY = 0;
+						ST.initialTime.MT = 0;
+						ST.initialTime.DD = 0;
+						ST.initialTime.HH = 0;
+						ST.initialTime.MM = 0;
+						ST.initialTime.SS = 0;
+						ST.initialTime.MS = 0;
+						// ST.lapTime = 0을 해줌
+						ST.lapTime.YY = 0;
+						ST.lapTime.MT = 0;
+						ST.lapTime.DD = 0;
+						ST.lapTime.HH = 0;
+						ST.lapTime.MM = 0;
+						ST.lapTime.SS = 0;
+						ST.lapTime.MS = 0;
 					}
 					else if (stopwatch_indicator == 1) {
 						ST.lapTime = ST.stopwatchTime;
@@ -413,36 +478,49 @@ void Button_Operator(int Selected_Button) {
 					}
 					break;
 				case 2: // B
-					if (stopwatch_indicator == 0) {
+					if (stopwatch_indicator == 0) { // commit 안 됨
 						MD.stopwatch_indicator = 1;
-						// ST.stopwatchTime += ST.startTime을 해줌
-						ST.stopwatchTime.YY += ST.startTime.YY;
-						ST.stopwatchTime.MT += ST.startTime.MT;
-						ST.stopwatchTime.DD += ST.startTime.DD;
-						ST.stopwatchTime.HH += ST.startTime.HH;
-						ST.stopwatchTime.MM += ST.startTime.MM;
-						ST.stopwatchTime.SS += ST.startTime.SS;
-						ST.stopwatchTime.MS += ST.startTime.MS;
-						ST.stopwatchTime = CT;
+						//stopwatchTime = CT - startTime + initialtime; (이 작업은 RTM에서 함)
+						ST.stopwatchTime.YY = 0;
+						ST.stopwatchTime.MT = 0;
+						ST.stopwatchTime.DD = 0;
+						ST.stopwatchTime.HH = 0;
+						ST.stopwatchTime.MM = 0;
+						ST.stopwatchTime.SS = 0;
+						ST.stopwatchTime.MS = 0;
+
+						ST.startTime.YY = CT.YY;
+						ST.startTime.MT = CT.MT;
+						ST.startTime.DD = CT.DD;
+						ST.startTime.HH = CT.HH;
+						ST.startTime.MM = CT.MM;
+						ST.startTime.SS = CT.SS;
+						ST.startTime.MS = CT.MS;
 					}
-					else if (stopwatch_indicator == 1) {
+					else if (stopwatch_indicator == 1) { // commit 안 됨
 						MD.stopwatch_indicator = 0;
-						// ST.lapTime += CT - ST.startTime;
-						ST.lapTime.YY += (CT.YY - ST.startTime.YY);
-						ST.lapTime.MT += (CT.MT - ST.startTime.MT);
-						ST.lapTime.DD += (CT.DD - ST.startTime.DD);
-						ST.lapTime.HH += (CT.HH - ST.startTime.HH);
-						ST.lapTime.MM += (CT.MM - ST.startTime.MM);
-						ST.lapTime.SS += (CT.SS - ST.startTime.SS);
-						ST.lapTime.MS += (CT.MS - ST.startTime.MS);
+						// ST.initialTime = ST.stopwatchTime;
+						ST.initialTime.YY = ST.stopwatchTime.YY;
+						ST.initialTime.MT = ST.stopwatchTime.MT;
+						ST.initialTime.DD = ST.stopwatchTime.DD;
+						ST.initialTime.HH = ST.stopwatchTime.HH;
+						ST.initialTime.MM = ST.stopwatchTime.MM;
+						ST.initialTime.SS = ST.stopwatchTime.SS;
+						ST.initialTime.MS = ST.stopwatchTime.MS;
 					}
 					break;
 				case 3: // C
 					MD.category_alpha = 3;
 					MD.category_beta = 1;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -458,8 +536,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_alpha = 3;
 					MD.category_beta = 1;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -478,8 +562,14 @@ void Button_Operator(int Selected_Button) {
 					break;
 				case 3: // C
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -495,8 +585,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 3;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -512,8 +608,14 @@ void Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 2;
 					break;
-				case 4: // D
-					Backlight = Backlight_Controller(Backlight);
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BacklightTime.YY = CT.YY;
+					BacklightTime.MT = CT.MT;
+					BacklightTime.DD = CT.DD;
+					BacklightTime.HH = CT.HH;
+					BacklightTime.MM = CT.MM;
+					BacklightTime.SS = CT.SS;
+					BacklightTime.MS = CT.MS;
 					break;
 				default: break;
 				}
@@ -522,9 +624,37 @@ void Button_Operator(int Selected_Button) {
 		}
 	}
 }
+Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는지 체크
+	int year = dest->YY; int month = dest->MT;
+	int day = dest->DD; int hour = dest->HH;
+	int min = dest->MM; int sec = dest->SS;
+	struct tm* timeinfo;
+	time_t rawtime;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	timeinfo->tm_year = year;
+	timeinfo->tm_mon = month;
+	timeinfo->tm_mday = day;
+	timeinfo->tm_hour = hour;
+	timeinfo->tm_min = min;
+	timeinfo->tm_sec = sec;
+	mktime(timeinfo);
+
+	Time ret;
+	ret.YY = timeinfo->tm_year;
+	ret.MT = timeinfo->tm_mon;
+	ret.DD = timeinfo->tm_mday;
+	ret.HH = timeinfo->tm_hour;
+	ret.MM = timeinfo->tm_min;
+	ret.SS = timeinfo->tm_sec;
+	ret.WD = timeinfo->tm_wday;
+	ret.MS = dest->MS;
+	return ret;
+
+}
 void Realtime_Manager() {
 	// 1. CT를 동기화 (int 연산들을 시간 범위 내로 맞춰줌)
-	struct _timeb itb;
+	struct timeb itb;
 	struct tm *now;
 	time_t ltime;
 	int milisec;
@@ -533,8 +663,9 @@ void Realtime_Manager() {
 	milisec = itb.millitm;
 	now = localtime(&ltime);
 
-	CT.YY = now->tm_year - 1900 - TD.YY;
-	CT.MT = now->tm_mon + 1 - TD.MT;
+	//시간 계산
+	CT.YY = now->tm_year - TD.YY;
+	CT.MT = now->tm_mon - TD.MT;
 	CT.DD = now->tm_mday - TD.DD;
 	CT.HH = now->tm_hour - TD.HH;
 	CT.MM = now->tm_min - TD.MM;
@@ -548,167 +679,23 @@ void Realtime_Manager() {
 
 
 	// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!!!
-	
-	
-	
-	// ST.stopwatchTime 시간 범위 내로 맞추기
-	if(ST.stopwatchTime.MS >= 1000) {
-		ST.stopwatchTime.MS -= 1000;
-		ST.stopwatchTime.SS++;
-	}
-	if(ST.stopwatchTime.SS >= 60) {
-		ST.stopwatchTime.SS -= 60;
-		ST.stopwatchTime.MM++;
-	}
-	if(ST.stopwatchTime.MM >= 60) {
-		ST.stopwatchTime.MM-= 60;
-		ST.stopwatchTime.HH++;
-	}
-	if(ST.stopwatchTime.HH >= 24) {
-		ST.stopwatchTime.HH -= 24;
-		ST.stopwatchTime.DD++;
-	}
-	switch(ST.stopwatchTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
-	case 1:
-	case 3:
-	case 5:
-	case 7:
-	case 8:
-	case 10:
-	case 12:
-		if(ST.stopwatchTime.DD > 31) {
-			ST.stopwatchTime.DD -= 31;
-			ST.stopwatchTime.MT++;
-		}
-		break;
-	case 4:
-	case 6:
-	case 9:
-	case 11:
-		if(ST.stopwatchTime.DD > 30) {
-			ST.stopwatchTime.DD -= 30;
-			ST.stopwatchTime.MT++;
-		}
-		break;
-	case 2:
-		if(ST.stopwatchTime.YY % 4 == 0 && ST.stopwatchTime.DD > 29) { // 윤년이고 일수>29인 경우
-			ST.stopwatchTime.DD -= 29;
-			ST.stopwatchTime.MT++;
-		}
-		else if(ST.stopwatchTime.YY % 4 != 0 && ST.stopwatchTime.DD > 28) { // 윤년이 아니고 일수>28인 경우
-			ST.stopwatchTime.DD -= 28;
-			ST.stopwatchTime.MT++;
-		}
-		break;
-	default: break;
-	}
-	if(ST.stopwatchTime.MT > 12) {
-		ST.stopwatchTime.MT -=  12;
-		ST.stopwatchTime.YY++;
-	}
+	//CT 보정
+	CT = timeCheck(&CT);
 
-	// ST.lapTime을 시간 범위 내로 맞추기
-	if(ST.lapTime.MS >= 1000) {
-			ST.lapTime.MS -= 1000;
-		ST.lapTime.SS++;
-	}
-	if(ST.lapTime.SS >= 60) {
-		ST.lapTime.SS -= 60;
-		ST.lapTime.MM++;
-	}
-	if(ST.lapTime.MM >= 60) {
-		ST.lapTime.MM-= 60;
-		ST.lapTime.HH++;
-	}
-	if(ST.lapTime.HH >= 24) {
-		ST.lapTime.HH -= 24;
-		ST.lapTime.DD++;
-	}
-	switch(ST.lapTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
-	case 1:
-	case 3:
-	case 5:
-	case 7:
-	case 8:
-	case 10:
-	case 12:
-		if(ST.lapTime.DD > 31) {
-			ST.lapTime.DD -= 31;
-			ST.lapTime.MT++;
+	if (MD.stopwatch_indicator) {
+			ST.stopwatchTime.YY = CT.YY - ST.startTime.YY + ST.initialTime.YY;
+			ST.stopwatchTime.MT = CT.MT - ST.startTime.MT + ST.initialTime.MT;
+			ST.stopwatchTime.DD = CT.DD - ST.startTime.DD + ST.initialTime.DD;
+			ST.stopwatchTime.HH = CT.HH - ST.startTime.HH + ST.initialTime.HH;
+			ST.stopwatchTime.MM = CT.MM - ST.startTime.MM + ST.initialTime.MM;
+			ST.stopwatchTime.SS = CT.SS - ST.startTime.SS + ST.initialTime.SS;
+			ST.stopwatchTime.MS = CT.MS - ST.startTime.MS + ST.initialTime.MS;
+
+			// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!
+
 		}
-		break;
-	case 4:
-	case 6:
-	case 9:
-	case 11:
-		if(ST.lapTime.DD > 30) {
-			ST.lapTime.DD -= 30;
-			ST.lapTime.MT++;
-		}
-		break;
-	case 2:
-		if(ST.lapTime.YY % 4 == 0 && ST.lapTime.DD > 29) { // 윤년이고 ST의 일 수 > 29이면
-			ST.lapTime.DD -= 29;
-			ST.lapTime.MT++;
-		}
-		else if(ST.lapTime.YY % 4 == 0 && ST.lapTime.DD > 28) { // 윤년이 아니고 ST의 일 수 > 28이면
-			ST.lapTime.DD -= 28;
-			ST.lapTime.MT++;
-		}
-		break;
-	default: break;
-	}
-	if(ST.lapTime.MT > 12) {
-		ST.lapTime.MT -= 12;
-		ST.lapTime.YY++;
-	}
-	if(ST.lapTime.MS < 0) {
-		ST.stopwatchTime.MS += 1000;
-		ST.stopwatchTime.YY++;
-	}
-	if(ST.lapTime.SS < 0) {
-		ST.lapTime.SS += 60;
-		ST.lapTime.MM--;
-	}
-	if(ST.lapTime.MM < 0) {
-		ST.lapTime.MM += 60;
-		ST.lapTime.HH--;
-	}
-	if(ST.lapTime.HH < 0) {
-		ST.lapTime.HH += 24;
-		ST.lapTime.DD--;
-	}
-	if(ST.lapTime.DD < 0) {
-		switch(ST.lapTime.MT) { // 달 별로 일 범위 안에 들어오는지를 확인
-		case 1:
-		case 3:
-		case 5:
-		case 7:
-		case 8:
-		case 10:
-		case 12:
-			ST.lapTime.DD += 31;
-			ST.lapTime.MT--;
-			break;
-		case 4:
-		case 6:
-		case 9:
-		case 11:
-			ST.lapTime.DD += 30;
-			ST.lapTime.MT--;
-			break;
-		case 2: 
-			if(ST.lapTime.YY % 4 == 0) ST.lapTime.DD += 29; // 윤년인 경우			}
-			else ST.lapTime.DD += 28;
-			ST.lapTime.MT--;
-			break;
-		default: break;
-		}
-	}
-	if(ST.lapTime.MT < 0) {
-		ST.lapTime.MT += 12;
-		ST.lapTime.YY--;
-	}
+	// ST.stopwatchTime 시간 범위 내로 맞추기
+
 
 	// 2. 자동으로 알람 끄기
 	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
@@ -899,8 +886,6 @@ void Panel_and_Speaker_Controller() {
 	default: // 엄밀한 명세에 의하면 없어도 되는 코드
 			break;
 	}
-
-
 	//show()를 구현하여 configure된 값들을 표시
 	//1초에 한번씩 깜빡일 예정
 	if (CT.SS % 2) blink_location = 0;
