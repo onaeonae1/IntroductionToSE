@@ -47,3 +47,12 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	printf("        ####################\n");
 
 }
+
+
+void gotoxy(int x, int y) {
+
+	printf("\033[%d;%df", y, x);
+
+	fflush(stdout);
+
+}
