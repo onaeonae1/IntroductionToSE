@@ -119,3 +119,117 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		*/
 	}
 }
+
+void Panel_and_Speaker_Controller() {
+	if (MD.alarm_buzzing == true) {
+		Alarm();
+	}
+	int flag1 = MD.category_alpha;
+	int flag2 = MD.category_beta;
+	char list[8][3]; // configure된 값들을 저장
+	int blink_location = 0;
+	char temp[3] = "  "; // 임시로 쓰일 저장소
+		// 깜빡일 위치를 저장
+		//만약 깜빡임을 구현하기 위해 깜빡일 위치를
+		//표시하여야 할 경우는 0을 저장한다
+
+
+	//if문들로 각각에 맞게 configure
+	//configure 된 값들은 모두 2글자의 문자열이다 + 깜빡일 위치
+
+	//alarm_indicator의 경우 공통되었으므로 미리 만들어 두었다
+	if (MD.stopwatch_indicator) temp[1] = 'A';
+	configure_set(list, 3, temp);
+	list[7][0] = ' '; list[7][1] = ' '; list[7][2] = '\0';
+
+	switch (flag1) {
+	case 1: // Timekeeping 모드
+		switch (TD.WD) {
+		case 0://Sunday
+			temp[0] = 'S'; temp[1] = 'U'; break;
+		case 1://Monday
+			temp[0] = 'M'; temp[1] = 'O'; break;
+		case 2://Tuesday
+			temp[0] = 'T'; temp[1] = 'U'; break;
+		case 3://Wendsday
+			temp[0] = 'W'; temp[1] = 'E'; break;
+		case 4://Thursday
+			temp[0] = 'T'; temp[1] = 'H'; break;
+		case 5://Friday
+			temp[0] = 'F'; temp[1] = 'R'; break;
+		case 6://Saturday
+			temp[0] = 'S'; temp[1] = 'A'; break;
+		default: break;
+		}
+		temp[2] = '\0';
+		configure_set(list, 0, temp);
+		int_to_str(CT.MT + 1, temp);
+		if (CT.MT + 1 < 10) temp[0] = ' ';
+		configure_set(list, 1, temp);
+		int_to_str(CT.DD, temp);
+		configure_set(list, 2, temp);
+		int_to_str(CT.HH, temp);
+		configure_set(list, 4, temp);
+		int_to_str(CT.MM, temp);
+		configure_set(list, 5, temp);
+		int_to_str(CT.SS, temp);
+		configure_set(list, 6, temp);
+		int_to_str(CT.YY - 100, temp);
+		configure_set(list, 7, temp);
+		switch (flag2) {
+		case 1: case 5: defalut: break; // (1,1)이거나 년도를 바꿀 경우 blink_location = 0이다.
+		case 2: blink_location = 7; break;// 초
+		case 3: blink_location = 5; break;// 시간
+		case 4: blink_location = 6; break;// 분
+		case 6: blink_location = 2; break; // 월
+		case 7: blink_location = 3; break;// 일
+		}
+		break;
+	case 2: // Stopwatch 모드
+		configure_set(list, 0, "ST");
+		int_to_str(CT.HH, temp);
+		configure_set(list, 1, temp);
+		int_to_str(CT.MM, temp);
+		configure_set(list, 2, temp);
+		if (flag2 == 1) {//Stopwatch
+			int_to_str(ST.stopwatchTime.MM, temp);
+			configure_set(list, 4, temp);
+			int_to_str(ST.stopwatchTime.SS, temp);
+			configure_set(list, 5, temp);
+			int_to_str(ST.stopwatchTime.MS, temp);
+			configure_set(list, 6, temp);
+		}
+		if (flag2 == 2) {//LAP
+			int_to_str(ST.lapTime.MM, temp);
+			configure_set(list, 4, temp);
+			int_to_str(ST.lapTime.SS, temp);
+			configure_set(list, 5, temp);
+			int_to_str(ST.lapTime.MS, temp);
+			configure_set(list, 6, temp);
+		}
+		break;
+	case 3: // Alarm 모드
+		configure_set(list, 0, "AL");
+		int_to_str(CT.MT + 1, temp);
+		if (CT.MT + 1 < 10) temp[0] = ' ';
+		configure_set(list, 1, temp);
+		int_to_str(CT.DD, temp);
+		configure_set(list, 2, temp);
+		int_to_str(AL.alarmTime.HH, temp);
+		configure_set(list, 4, temp);
+		int_to_str(AL.alarmTime.MM, temp);
+		configure_set(list, 5, temp);
+		configure_set(list, 6, "  ");
+		if (flag2 == 2) blink_location = 5; // 시간
+		else if (flag2 == 3) blink_location = 6; // 분
+		break;
+	default: // 엄밀한 명세에 의하면 없어도 되는 코드
+		break;
+	}
+	//show()를 구현하여 configure된 값들을 표시
+	//1초에 한번씩 깜빡일 예정
+	if (CT.SS % 2) blink_location = 0;
+	show(flag1, list, blink_location);
+
+	return;
+}
