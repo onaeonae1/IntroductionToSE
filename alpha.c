@@ -102,7 +102,7 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	milisec = itb.millitm;
 	now = localtime(&ltime);
 	//시간 초기화
-	CT.YY = 19, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0, CT.WD = -1; // 요일 수정 필요
+	CT.YY = 25, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0, CT.WD = -1; // 요일 수정 필요
 	TD.YY = now->tm_year - 100 - 19, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec, TD.WD = -1;
 	//알람 초기화
 	AL.alarmTime.YY = 0, AL.alarmTime.MT = 0, AL.alarmTime.DD = 0, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0, AL.alarmTime.WD = -1;
@@ -657,7 +657,7 @@ Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는�
 	time_t rawtime;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	timeinfo->tm_year = (year%200) + 119;
+	timeinfo->tm_year = (year-119) % 81 + 119;
 	timeinfo->tm_mon = month;
 	timeinfo->tm_mday = day;
 	timeinfo->tm_hour = hour;
@@ -706,8 +706,6 @@ void Realtime_Manager() {
 	// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!!!
 	//CT 보정
 	CT = timeCheck(&CT);
-	printf("%d %d %d %d %d %d \n", CT.YY, CT.MT, CT.DD, CT.HH, CT.MM, CT.SS);
-	//printf("%d %d %d %d %d %d\n", CT.YY, CT.MT, CT.DD, CT.HH, CT.MM, CT.SS);
 	if (MD.stopwatch_indicator) {
 			ST.stopwatchTime.YY = CT.YY - ST.startTime.YY + ST.initialTime.YY;
 			ST.stopwatchTime.MT = CT.MT - ST.startTime.MT + ST.initialTime.MT;
@@ -940,7 +938,7 @@ void Panel_and_Speaker_Controller() {
 	//show()를 구현하여 configure된 값들을 표시
 	//1초에 한번씩 깜빡일 예정
 	if (CT.SS % 2) blink_location = 0;
-	//show(flag1, list, blink_location);
+	show(flag1, list, blink_location);
 
 	return;
 }
