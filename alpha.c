@@ -270,6 +270,12 @@ void Button_Operator(int Selected_Button) {
 						ST.startTime.MM++;
 					}
 					else ST.startTime.SS++;
+					// backlight 시작 초도 같이 늘려주기
+					if (BC.BacklightTime.SS == 59) {
+						BC.BacklightTime.SS = 0;
+						BC.BacklightTime.MM++;
+					}
+					else BC.BacklightTime.SS++;
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -303,6 +309,12 @@ void Button_Operator(int Selected_Button) {
 						ST.startTime.DD++;
 					}
 					else ST.startTime.HH++;
+					// backlight 시작 시각도 같이 늘려주기
+					if (BC.BacklightTime.HH == 23) {
+						BC.BacklightTime.HH = 0;
+						BC.BacklightTime.DD++;
+					}
+					else BC.BacklightTime.HH++;
 					break;
 				case 3: // C
 					MD.category_beta = 4;
@@ -336,6 +348,12 @@ void Button_Operator(int Selected_Button) {
 						ST.startTime.HH++;
 					}
 					else ST.startTime.MM++;
+					// backlight 시작 분도 같이 늘려주기
+					if (BC.BacklightTime.MM == 59) {
+						BC.BacklightTime.MM = 0;
+						BC.BacklightTime.HH++;
+					}
+					else BC.BacklightTime.MM++;
 					break;
 				case 3: // C
 					MD.category_beta = 5;
@@ -365,6 +383,9 @@ void Button_Operator(int Selected_Button) {
 					// stopwatch 시작 년도 같이 늘려주기
 					if (ST.startTime.YY == 99) ST.startTime.YY = 19;
 					else ST.startTime.YY++;
+					// backlight 시작 년도 같이 늘려주기
+					if (BC.BacklightTime.YY == 99) BC.BacklightTime.YY = 19;
+					else BC.BacklightTime.YY++;
 					break;
 				case 3: // C
 					MD.category_beta = 6;
@@ -393,10 +414,16 @@ void Button_Operator(int Selected_Button) {
 					else TD.MT++; // 현재 시각 달 1 증가
 					// stopwatch 시작 월도 같이 늘려주기
 					if (ST.startTime.MT == 12) {
-						ST.startTime.MT = 0;
+						ST.startTime.MT = 1;
 						ST.startTime.YY++;
 					}
 					else ST.startTime.MT++;
+					// backlight 시작 월도 같이 늘려주기
+					if (BC.BacklightTime.MT == 12) {
+						BC.BacklightTime.MT = 1;
+						BC.BacklightTime.YY++;
+					}
+					else BC.BacklightTime.YY++;
 					break;
 				case 3: // C
 					MD.category_beta = 7;
@@ -440,6 +467,12 @@ void Button_Operator(int Selected_Button) {
 						}
 						else ST.startTime.DD++;
 						break;
+						// backlight 시작 일도 같이 늘려주기
+						if (BC.BacklightTime.DD == 31) {
+							BC.BacklightTime.DD = 1;
+							BC.BacklightTime.MT++;
+						}
+						else BC.BacklightTime.DD++;
 						// 한 달에 28일이 있는 경우
 					case 2:
 						if (CT.YY % 4 == 0) { // 윤년이면
@@ -465,6 +498,21 @@ void Button_Operator(int Selected_Button) {
 							}
 							else ST.startTime.DD++;
 						}
+						// 백라이트 시작 일도 같이 늘려주기
+						if (BC.BacklightTime.YY % 4 == 0) { // stopwatch가 윤년이면
+							if (BC.BacklightTime.DD == 29) {
+								BC.BacklightTime.DD = 1;
+								BC.BacklightTime.MT++;
+							}
+							else BC.BacklightTime.DD++;
+						}
+						else { // stopwatch 설정 연도가 윤년이 아닌 경우에는
+							if (BC.BacklightTime.DD == 28) {
+								BC.BacklightTime.DD = 1;
+								BC.BacklightTime.MT++;
+							}
+							else BC.BacklightTime.DD++;
+						}
 						break;
 						// 한 달에 30일이 있는 경우
 					case 4:
@@ -479,6 +527,12 @@ void Button_Operator(int Selected_Button) {
 							ST.startTime.MT++;
 						}
 						else ST.startTime.DD++;
+						// 백라이트 시작 일도 같이 늘려주기
+						if (BC.BacklightTime.DD == 30) {
+							BC.BacklightTime.DD = 1;
+							BC.BacklightTime.MT++;
+						}
+						else BC.BacklightTime.DD++;
 						break;
 					}
 					break;
