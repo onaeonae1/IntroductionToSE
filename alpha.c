@@ -112,6 +112,7 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	ST.lapTime.YY = 0, ST.lapTime.MT = 0, ST.lapTime.DD = 0, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
 	ST.initialTime.YY = 0, ST.initialTime.MT = 0, ST.initialTime.DD = 0, ST.initialTime.HH = 0, ST.initialTime.MM = 0, ST.initialTime.SS = 0, ST.initialTime.MS = 0, ST.initialTime.WD = -1; // commint 안 됨
 	//백라이트
+	Backlight_Controller(8);
 	BC.value = COLOR_DEF;
 	Backlight_Controller(BC.value);
 	BC.BacklightTime.YY = 0, BC.BacklightTime.MT = 0, BC.BacklightTime.DD = 0, BC.BacklightTime.HH = 0, BC.BacklightTime.MM = 0, BC.BacklightTime.SS = 0, BC.BacklightTime.MS = 0, BC.BacklightTime.WD = -1; // commint 안 됨
@@ -176,6 +177,33 @@ int Button_Selector() {
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
 }
+Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는지 체크
+	int year = dest->YY; int month = dest->MT;
+	int day = dest->DD; int hour = dest->HH;
+	int min = dest->MM; int sec = dest->SS;
+	struct tm* timeinfo;
+	time_t rawtime;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	timeinfo->tm_year = (year-119) % 81 + 119;
+	timeinfo->tm_mon = month;
+	timeinfo->tm_mday = day;
+	timeinfo->tm_hour = hour;
+	timeinfo->tm_min = min;
+	timeinfo->tm_sec = sec;
+	mktime(timeinfo);
+
+	Time ret;
+	ret.YY = timeinfo->tm_year;
+	ret.MT = timeinfo->tm_mon;
+	ret.DD = timeinfo->tm_mday;
+	ret.HH = timeinfo->tm_hour;
+	ret.MM = timeinfo->tm_min;
+	ret.SS = timeinfo->tm_sec;
+	ret.WD = timeinfo->tm_wday;
+	ret.MS = dest->MS;
+	return ret;
+}
 void Button_Operator(int Selected_Button) {
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
@@ -214,13 +242,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -244,13 +275,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -274,13 +308,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 4;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -304,14 +341,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 5;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
-					break;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 				default: break;
 				}
 				break;
@@ -331,14 +370,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 6;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
-					break;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 				default: break;
 				}
 				break;
@@ -361,14 +402,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 7;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
-					break;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 				default: break;
 				}
 				break;
@@ -443,13 +486,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -539,13 +585,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -562,13 +611,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -589,13 +641,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_alpha = 1;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -613,13 +668,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 3;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -637,13 +695,16 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 2;
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
 					BC.BacklightTime.DD = CT.DD;
 					BC.BacklightTime.HH = CT.HH;
 					BC.BacklightTime.MM = CT.MM;
-					BC.BacklightTime.SS = CT.SS;
+					BC.BacklightTime.SS = CT.SS + 2;
 					BC.BacklightTime.MS = CT.MS;
+					Time* prev = &(BC.BacklightTime);
+					BC.BacklightTime = timeCheck(prev);
 					break;
 				default: break;
 				}
@@ -651,34 +712,6 @@ void Button_Operator(int Selected_Button) {
 			}
 		}
 	}
-}
-Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는지 체크
-	int year = dest->YY; int month = dest->MT;
-	int day = dest->DD; int hour = dest->HH;
-	int min = dest->MM; int sec = dest->SS;
-	struct tm* timeinfo;
-	time_t rawtime;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	timeinfo->tm_year = (year-119) % 81 + 119;
-	timeinfo->tm_mon = month;
-	timeinfo->tm_mday = day;
-	timeinfo->tm_hour = hour;
-	timeinfo->tm_min = min;
-	timeinfo->tm_sec = sec;
-	mktime(timeinfo);
-
-	Time ret;
-	ret.YY = timeinfo->tm_year;
-	ret.MT = timeinfo->tm_mon;
-	ret.DD = timeinfo->tm_mday;
-	ret.HH = timeinfo->tm_hour;
-	ret.MM = timeinfo->tm_min;
-	ret.SS = timeinfo->tm_sec;
-	ret.WD = timeinfo->tm_wday;
-	ret.MS = dest->MS;
-	return ret;
-
 }
 void Realtime_Manager() {
 	// 1. CT를 동기화 (int 연산들을 시간 범위 내로 맞춰줌)
@@ -728,6 +761,12 @@ void Realtime_Manager() {
 	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
 		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
 	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
+
+	//3. Backlight 조작하기
+	if(CT.HH==BC.BacklightTime.HH && CT.MM ==BC.BacklightTime.MM && CT.SS==BC.BacklightTime.SS){
+		BC.value = COLOR_DEF;
+	}
+
 
 	//알람 buzzing모드 켜기
 	if (MD.alarm_indicator) {
@@ -960,6 +999,7 @@ int main(){
 		Button_Operator(Selected_Button);
 		Realtime_Manager();
 		Panel_and_Speaker_Controller();
+		Backlight_Controller();
 	}
 	return 0;
 }
