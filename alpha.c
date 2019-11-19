@@ -528,6 +528,13 @@ void Button_Operator(int Selected_Button) {
 			case 2: // 2.2 stopwatch_LAP
 				switch (Selected_Button) {
 				case 1: // A
+					ST.lapTime.YY = ST.stopwatchTime.YY;
+					ST.lapTime.MT = ST.stopwatchTime.MT;
+					ST.lapTime.DD = ST.stopwatchTime.DD;
+					ST.lapTime.HH = ST.stopwatchTime.HH;
+					ST.lapTime.MM = ST.stopwatchTime.MM;
+					ST.lapTime.SS = ST.stopwatchTime.SS;
+					ST.lapTime.MS = ST.stopwatchTime.MS;
 					break;
 				case 2: // B
 					MD.category_beta = 1;
@@ -882,7 +889,7 @@ void Panel_and_Speaker_Controller() {
 			configure_set(list, 4, temp);
 			int_to_str(ST.stopwatchTime.SS, temp);
 			configure_set(list, 5, temp);
-			int_to_str(ST.stopwatchTime.MS, temp);
+			int_to_str(ST.stopwatchTime.MS / 10, temp);
 			configure_set(list, 6, temp);
 		}
 		if (flag2 == 2) {//LAP
@@ -890,7 +897,7 @@ void Panel_and_Speaker_Controller() {
 			configure_set(list, 4, temp);
 			int_to_str(ST.lapTime.SS, temp);
 			configure_set(list, 5, temp);
-			int_to_str(ST.lapTime.MS, temp);
+			int_to_str(ST.lapTime.MS / 10, temp);
 			configure_set(list, 6, temp);
 		}
 		break;
