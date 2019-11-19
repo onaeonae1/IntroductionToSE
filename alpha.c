@@ -1,51 +1,4 @@
-//전체
-#include<stdio.h>
-#include<windows.h>
-#include<time.h>
-#include<sys/timeb.h>
-#include<string.h>
-#include"linux_kbhit.h"
-#include"getch.h"
-#define COLOR_DEF 12
-#define COLOR_GRN 2
-//c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
-typedef enum Boolean{
-	false=0,
-	true = 1
-}Bool;
-//Data Store들을 정의하기
-typedef struct Mode{
-	Bool alarm_buzzing;
-	int category_alpha; //대분류
-	int category_beta; //소분류
-	Bool stopwatch_indicator; //indicator 켜졌는지,
-	Bool alarm_indicator; //indicator 꺼졌는지,
-}mode;
-typedef struct Time{
-	int YY; //년도
-	int MT; //월
-	int DD; //일
-	int HH; //시
-	int MM; //분
-	int SS; //초
-	int MS; //ms
-	int WD; //요일
-}Time;
-typedef struct Alm{ //시작 시간
-	Time alarmTime;
-}alm;
-typedef struct StopWatch {
-	//LapTime은 StartTime을 기반으로 업데이트 된다.
-	Time stopwatchTime;
-	Time startTime;
-	Time lapTime;
-	Time initialTime; // commit 안 됨
-
-}stopwatch;
-typedef struct Backlight{
-	Time BacklightTime; //backlight 켜기 시작한 시간
-	int value; //backlight 색깔 값
-}backlight;
+#include"util.h"
 //Data Store들 선언하기
 alm AL; //알람
 stopwatch ST; //스톱워치
@@ -103,7 +56,7 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	now = localtime(&ltime);
 	//시간 초기화
 	CT.YY = 25, CT.MT = 1, CT.DD = 1, CT.HH = 0, CT.MM = 0, CT.SS = 0, CT.MS = 0, CT.WD = -1; // 요일 수정 필요
-	TD.YY = now->tm_year - 100 - 19, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec, TD.WD = -1;
+	TD.YY = now->tm_year - 100 - 23, TD.MT = now->tm_mon + 1 - 1, TD.DD = now->tm_mday - 1, TD.HH = now->tm_hour, TD.MM = now->tm_min, TD.SS = now->tm_sec, TD.MS = milisec, TD.WD = -1;
 	//알람 초기화
 	AL.alarmTime.YY = 0, AL.alarmTime.MT = 0, AL.alarmTime.DD = 0, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0, AL.alarmTime.WD = -1;
 	//스톱워치
@@ -177,33 +130,6 @@ int Button_Selector() {
 void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
 	MD = Mode_to_Change; //값 복사
 }
-Time timeCheck(Time* dest){ //Time 형을 하나 불러와서 범위에 맞는지 체크
-	int year = dest->YY; int month = dest->MT;
-	int day = dest->DD; int hour = dest->HH;
-	int min = dest->MM; int sec = dest->SS;
-	struct tm* timeinfo;
-	time_t rawtime;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	timeinfo->tm_year = (year-119) % 81 + 119;
-	timeinfo->tm_mon = month;
-	timeinfo->tm_mday = day;
-	timeinfo->tm_hour = hour;
-	timeinfo->tm_min = min;
-	timeinfo->tm_sec = sec;
-	mktime(timeinfo);
-
-	Time ret;
-	ret.YY = timeinfo->tm_year;
-	ret.MT = timeinfo->tm_mon;
-	ret.DD = timeinfo->tm_mday;
-	ret.HH = timeinfo->tm_hour;
-	ret.MM = timeinfo->tm_min;
-	ret.SS = timeinfo->tm_sec;
-	ret.WD = timeinfo->tm_wday;
-	ret.MS = dest->MS;
-	return ret;
-}
 void Button_Operator(int Selected_Button) {
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
@@ -262,20 +188,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.SS == 59) TD.SS -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-					else TD.SS++; // 현재 시각 초 1 증가
+					if (CT.SS == 59) TD.SS += 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.SS--; // 현재 시각 초 1 증가
 					// stopwatch 시작 초도 같이 늘려주기
 					if (ST.startTime.SS == 59) {
 						ST.startTime.SS = 0;
 						ST.startTime.MM++;
 					}
 					else ST.startTime.SS++;
-					// backlight 시작 초도 같이 늘려주기
-					if (BC.BacklightTime.SS == 59) {
-						BC.BacklightTime.SS = 0;
-						BC.BacklightTime.MM++;
-					}
-					else BC.BacklightTime.SS++;
 					break;
 				case 3: // C
 					MD.category_beta = 3;
@@ -301,20 +221,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.HH == 23) TD.HH -= 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-					else TD.HH++; // 현재 시각 시간 1 증가
+					if (CT.HH == 23) TD.HH += 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.HH--; // 현재 시각 시간 1 증가
 					// stopwatch 시작 시간도 같이 늘려주기
 					if (ST.startTime.HH == 23) {
 						ST.startTime.HH = 0;
 						ST.startTime.DD++;
 					}
 					else ST.startTime.HH++;
-					// backlight 시작 시각도 같이 늘려주기
-					if (BC.BacklightTime.HH == 23) {
-						BC.BacklightTime.HH = 0;
-						BC.BacklightTime.DD++;
-					}
-					else BC.BacklightTime.HH++;
 					break;
 				case 3: // C
 					MD.category_beta = 4;
@@ -340,20 +254,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.MM == 59) TD.MM -= 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-					else TD.MM++; // 현재 시각 분 1 증가
+					if (CT.MM == 59) TD.MM += 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.MM--; // 현재 시각 분 1 증가
 					// stopwatch 시작 분도 같이 늘려주기
 					if (ST.startTime.MM == 59) {
 						ST.startTime.MM = 0;
 						ST.startTime.HH++;
 					}
 					else ST.startTime.MM++;
-					// backlight 시작 분도 같이 늘려주기
-					if (BC.BacklightTime.MM == 59) {
-						BC.BacklightTime.MM = 0;
-						BC.BacklightTime.HH++;
-					}
-					else BC.BacklightTime.MM++;
 					break;
 				case 3: // C
 					MD.category_beta = 5;
@@ -378,14 +286,11 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.YY == 99) TD.YY -= 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-					else TD.YY++; // 현재 시각 년 1 증가
+					if (CT.YY == 99) TD.YY += 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.YY--; // 현재 시각 년 1 증가
 					// stopwatch 시작 년도 같이 늘려주기
 					if (ST.startTime.YY == 99) ST.startTime.YY = 19;
 					else ST.startTime.YY++;
-					// backlight 시작 년도 같이 늘려주기
-					if (BC.BacklightTime.YY == 99) BC.BacklightTime.YY = 19;
-					else BC.BacklightTime.YY++;
 					break;
 				case 3: // C
 					MD.category_beta = 6;
@@ -410,20 +315,14 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (CT.MT == 12) TD.MT -= 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-					else TD.MT++; // 현재 시각 달 1 증가
+					if (CT.MT == 12) TD.MT += 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else TD.MT--; // 현재 시각 달 1 증가
 					// stopwatch 시작 월도 같이 늘려주기
 					if (ST.startTime.MT == 12) {
-						ST.startTime.MT = 1;
+						ST.startTime.MT = 0;
 						ST.startTime.YY++;
 					}
 					else ST.startTime.MT++;
-					// backlight 시작 월도 같이 늘려주기
-					if (BC.BacklightTime.MT == 12) {
-						BC.BacklightTime.MT = 1;
-						BC.BacklightTime.YY++;
-					}
-					else BC.BacklightTime.YY++;
 					break;
 				case 3: // C
 					MD.category_beta = 7;
@@ -458,8 +357,8 @@ void Button_Operator(int Selected_Button) {
 					case 8:
 					case 10:
 					case 12:
-						if (CT.DD == 31) TD.DD -= 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-						else TD.DD++;
+						if (CT.DD == 31) TD.DD += 31; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						else TD.DD--;
 						// stopwatch 시작 일도 같이 늘려주기
 						if (ST.startTime.DD == 31) {
 							ST.startTime.DD = 1;
@@ -467,21 +366,15 @@ void Button_Operator(int Selected_Button) {
 						}
 						else ST.startTime.DD++;
 						break;
-						// backlight 시작 일도 같이 늘려주기
-						if (BC.BacklightTime.DD == 31) {
-							BC.BacklightTime.DD = 1;
-							BC.BacklightTime.MT++;
-						}
-						else BC.BacklightTime.DD++;
 						// 한 달에 28일이 있는 경우
 					case 2:
 						if (CT.YY % 4 == 0) { // 윤년이면
-							if (CT.DD == 29) TD.DD -= 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-							else TD.DD++;
+							if (CT.DD == 29) TD.DD += 29; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+							else TD.DD--;
 						}
 						else { // 윤년이 아닌 경우에는
-							if (CT.DD == 28) TD.DD -= 28;
-							else TD.DD++;
+							if (CT.DD == 28) TD.DD += 28;
+							else TD.DD--;
 						}
 						// stopwatch 시작 일도 같이 늘려주기
 						if (ST.startTime.YY % 4 == 0) { // stopwatch가 윤년이면
@@ -498,41 +391,20 @@ void Button_Operator(int Selected_Button) {
 							}
 							else ST.startTime.DD++;
 						}
-						// 백라이트 시작 일도 같이 늘려주기
-						if (BC.BacklightTime.YY % 4 == 0) { // stopwatch가 윤년이면
-							if (BC.BacklightTime.DD == 29) {
-								BC.BacklightTime.DD = 1;
-								BC.BacklightTime.MT++;
-							}
-							else BC.BacklightTime.DD++;
-						}
-						else { // stopwatch 설정 연도가 윤년이 아닌 경우에는
-							if (BC.BacklightTime.DD == 28) {
-								BC.BacklightTime.DD = 1;
-								BC.BacklightTime.MT++;
-							}
-							else BC.BacklightTime.DD++;
-						}
 						break;
 						// 한 달에 30일이 있는 경우
 					case 4:
 					case 6:
 					case 9:
 					case 11:
-						if (CT.DD == 30) TD.DD -= 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
-						else TD.DD++;
+						if (CT.DD == 30) TD.DD += 30; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+						else TD.DD--;
 						// stopwatch 시작 일도 같이 늘려주기
 						if (ST.startTime.DD == 30) {
 							ST.startTime.DD = 1;
 							ST.startTime.MT++;
 						}
 						else ST.startTime.DD++;
-						// 백라이트 시작 일도 같이 늘려주기
-						if (BC.BacklightTime.DD == 30) {
-							BC.BacklightTime.DD = 1;
-							BC.BacklightTime.MT++;
-						}
-						else BC.BacklightTime.DD++;
 						break;
 					}
 					break;
@@ -742,7 +614,8 @@ void Button_Operator(int Selected_Button) {
 					MD.category_beta = 1;
 					break;
 				case 2: // B
-					if (AL.alarmTime.MM = 59) AL.alarmTime.MM = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					if (AL.alarmTime.MM == 59) AL.alarmTime.MM = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
+					else
 					AL.alarmTime.MM++; // 알람 시작 분 1 증가
 					break;
 				case 3: // C
@@ -807,10 +680,10 @@ void Realtime_Manager() {
 
 			// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!
 			ST.stopwatchTime = timeCheck(&ST.stopwatchTime);
-			
+
 			if(ST.stopwatchTime.HH >= 60) { // 60분 이상이면 전체 스탑워치를 초기화한다.
 				MD.stopwatch_indicator = 0;
-				
+
 				ST.stopwatchTime.YY = 0;
 				ST.stopwatchTime.MT = 0;
 				ST.stopwatchTime.DD = 0;
@@ -818,7 +691,7 @@ void Realtime_Manager() {
 				ST.stopwatchTime.MM = 0;
 				ST.stopwatchTime.SS = 0;
 				ST.stopwatchTime.MS = 0;
-				
+
 				ST.startTime.YY = 0;
 				ST.startTime.MT = 0;
 				ST.startTime.DD = 0;
@@ -826,7 +699,7 @@ void Realtime_Manager() {
 				ST.startTime.MM = 0;
 				ST.startTime.SS = 0;
 				ST.startTime.MS = 0;
-				
+
 				ST.initialTime.YY = 0;
 				ST.initialTime.MT = 0;
 				ST.initialTime.DD = 0;
@@ -834,7 +707,7 @@ void Realtime_Manager() {
 				ST.initialTime.MM = 0;
 				ST.initialTime.SS = 0;
 				ST.initialTime.MS = 0;
-				
+
 				ST.lapTime.YY = 0;
 				ST.lapTime.MT = 0;
 				ST.lapTime.DD = 0;
@@ -867,13 +740,6 @@ void Realtime_Manager() {
 	}
 
 
-
-}
-void gotoxy(int x, int y) {
-
-	printf("\033[%d;%df", y, x);
-
-	fflush(stdout);
 
 }
 void show(int alpha_cat, char list[8][3], int blink_location) {
@@ -937,30 +803,6 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		printf("        ####################\n");
 		*/
 	}
-}
-void configure_set(char list[7][3], int location, char goal[3]) {
-	//list엔 configure 될 값들이
-	//location엔 0에서 6사이의 변경할 위치
-	//goal에는 바꿀 값이 들어있다
-	list[location][0] = goal[0];
-	list[location][1] = goal[1];
-	list[location][2] = '\0';
-	return;
-}
-
-void int_to_str(int to, char temp[3]) {
-	// to는 두 자리 이하의 자연수라는 것을 가정하고 사용
-	if (to < 10) {
-		temp[0] = '0';
-		temp[1] = (char)(to + '0');
-		temp[2] = '\0';
-	}
-	else {
-		temp[0] = (char)(to / 10 + '0');
-		temp[1] = (char)(to % 10 + '0');
-		temp[2] = '\0';
-	}
-	return;
 }
 void Panel_and_Speaker_Controller() {
 	if (MD.alarm_buzzing == true) {
