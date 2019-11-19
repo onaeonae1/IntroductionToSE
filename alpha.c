@@ -752,6 +752,43 @@ void Realtime_Manager() {
 			ST.stopwatchTime.MS = CT.MS - ST.startTime.MS + ST.initialTime.MS;
 
 			// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!
+			ST.stopwatchTime = timeCheck(&ST.stopwatchTime);
+			
+			if(ST.stopwatchTime.HH >= 60) { // 60분 이상이면 전체 스탑워치를 초기화한다.
+				MD.stopwatch_indicator = 0;
+				
+				ST.stopwatchTime.YY = 0;
+				ST.stopwatchTime.MT = 0;
+				ST.stopwatchTime.DD = 0;
+				ST.stopwatchTime.HH = 0;
+				ST.stopwatchTime.MM = 0;
+				ST.stopwatchTime.SS = 0;
+				ST.stopwatchTime.MS = 0;
+				
+				ST.startTime.YY = 0;
+				ST.startTime.MT = 0;
+				ST.startTime.DD = 0;
+				ST.startTime.HH = 0;
+				ST.startTime.MM = 0;
+				ST.startTime.SS = 0;
+				ST.startTime.MS = 0;
+				
+				ST.initialTime.YY = 0;
+				ST.initialTime.MT = 0;
+				ST.initialTime.DD = 0;
+				ST.initialTime.HH = 0;
+				ST.initialTime.MM = 0;
+				ST.initialTime.SS = 0;
+				ST.initialTime.MS = 0;
+				
+				ST.lapTime.YY = 0;
+				ST.lapTime.MT = 0;
+				ST.lapTime.DD = 0;
+				ST.lapTime.HH = 0;
+				ST.lapTime.MM = 0;
+				ST.lapTime.SS = 0;
+				ST.lapTime.MS = 0;
+			}
 
 		}
 	// ST.stopwatchTime 시간 범위 내로 맞추기
