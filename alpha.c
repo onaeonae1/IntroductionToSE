@@ -602,6 +602,7 @@ void Button_Operator(int Selected_Button) {
 			case 2: // 3.2 alarm_change_hr
 				switch (Selected_Button) {
 				case 1: // A
+					MD.category_beta = 1;
 					break;
 				case 2: // B
 					if (AL.alarmTime.HH == 23) AL.alarmTime.HH = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -625,6 +626,7 @@ void Button_Operator(int Selected_Button) {
 			case 3: // alarm_change_min
 				switch (Selected_Button) {
 				case 1: // A
+					MD.category_beta = 1;
 					break;
 				case 2: // B
 					if (AL.alarmTime.MM = 59) AL.alarmTime.MM = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
