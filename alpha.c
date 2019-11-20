@@ -39,7 +39,9 @@ void Alarm(){ //소리 울리기
 	printf("\a");
 }
 void init() { //초기화. 프로그램 첫 실행시에 호출됨.
-	//커서 설정
+	//콘솔 창 설정
+	SetConsoleTitle("DWS for Team #1");
+	//마우스 커서 숨기기
 	 HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	 CONSOLE_CURSOR_INFO info;
 	 info.dwSize = 100;
