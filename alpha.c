@@ -38,7 +38,7 @@ Bool buttonD_interface(char input){
 void Alarm(){ //소리 울리기
 	printf("\a");
 }
-void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해야 함, ST.initialTime.XX가 커밋되지 않음
+void init() { //초기화. 프로그램 첫 실행시에 호출됨.
 	//커서 설정
 	 HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	 CONSOLE_CURSOR_INFO info;
@@ -60,6 +60,7 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	//알람 초기화
 	AL.alarmTime.YY = 0, AL.alarmTime.MT = 0, AL.alarmTime.DD = 0, AL.alarmTime.HH = 0, AL.alarmTime.MM = 0, AL.alarmTime.SS = 0, AL.alarmTime.MS = 0, AL.alarmTime.WD = -1;
 	AL.snooze = true;
+	AL.ring = 0;
 	//스톱워치
 	ST.stopwatchTime.YY = 0, ST.stopwatchTime.MT = 0, ST.stopwatchTime.DD = 0, ST.stopwatchTime.HH = 0, ST.stopwatchTime.MM, ST.stopwatchTime.SS = 0, ST.stopwatchTime.MS = 0, ST.stopwatchTime.WD = -1;
 	ST.startTime.YY = 0, ST.startTime.MT = 0, ST.startTime.DD = 0, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0, ST.startTime.WD = -1;
@@ -74,8 +75,6 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨. commit 해�
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
 	//백라이트 초기화
-
-
 
 	//show에 관한 초기화
 	printf("        ####################\n");
@@ -139,22 +138,11 @@ int Button_Operator(int Selected_Button) {
 	//Bool alarm_indicator = MD.alarm_indicator;
 
 	// 모드의 대분류(category_alpha)-소분류(category_beta)-Selected_Button 순서로 작성
-	if (alarm_buzzing) { //알람 울리기가 최우선
-		/*if (Selected_Button != 0) {
-			// 버튼이 눌리지 않으면 5초 동안 가만히 있다가 스스로 종료(RTM)
-			// 알람을 끔
-			MD.alarm_buzzing = false; // 알람 안 울림 상태로 바꿔주고
-			AL.alarmTime.YY = 19;
-			AL.alarmTime.MT = 1;
-			AL.alarmTime.DD = 1;
-			AL.alarmTime.HH = 0;
-			AL.alarmTime.MM = 0;
-			AL.alarmTime.SS = 0;
-			AL.alarmTime.MS = 0; // 알람 설정 시각을 초기화
+	//알람 울리기가 최우선
 
-		}*/
-	}
-	else {
+	// 버튼이 눌리지 않으면 5초 동안 가만히 있다가 스스로 종료(RTM)
+	// 알람을 끔
+	if(!alarm_buzzing) {
 		if (category_alpha == 1) {
 			switch (category_beta) {
 			case 1: // 1.1 timekeeping
@@ -168,7 +156,7 @@ int Button_Operator(int Selected_Button) {
 					MD.category_alpha = 2;
 					MD.category_beta = 1;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -201,7 +189,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 3;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -234,7 +222,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 4;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -267,7 +255,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 5;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -296,7 +284,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 6;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -328,7 +316,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 7;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -412,7 +400,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 2;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -544,7 +532,7 @@ int Button_Operator(int Selected_Button) {
 					MD.category_alpha = 3;
 					MD.category_beta = 1;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -576,7 +564,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_alpha = 1;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -603,7 +591,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 3;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -631,7 +619,7 @@ int Button_Operator(int Selected_Button) {
 				case 3: // C
 					MD.category_beta = 2;
 					break;
-				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다. commit 안 됨
+				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
 					BC.BacklightTime.YY = CT.YY;
 					BC.BacklightTime.MT = CT.MT;
@@ -676,8 +664,6 @@ void Realtime_Manager(int Selected_Button) {
 	//TD의 값은 변화가 없습니다. 그러므로 자연스럽게 2099년을 초과하는 경우는 TD.YY도 81만큼 빼 주어야 합니다.
 	//초과하지 않았따면, CT만 보정하여 주면 됩니다.
 
-
-	// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!!!
 	//CT 보정
 	CT = timeCheck(&CT);
 	if (MD.stopwatch_indicator) {
@@ -689,7 +675,7 @@ void Realtime_Manager(int Selected_Button) {
 			ST.stopwatchTime.SS = CT.SS - ST.startTime.SS + ST.initialTime.SS;
 			ST.stopwatchTime.MS = CT.MS- ST.startTime.MS + ST.initialTime.MS;
 
-			// 보정하는 과정이 필요합니다!!!!!!!!!!!!!!
+			//보정 과정
 			ST.stopwatchTime = timeCheck(&ST.stopwatchTime);
 
 			if(ST.stopwatchTime.HH >= 60) { // 60분 이상이면 전체 스탑워치를 초기화한다.
@@ -729,19 +715,20 @@ void Realtime_Manager(int Selected_Button) {
 			}
 
 		}
-	// ST.stopwatchTime 시간 범위 내로 맞추기
 
 	if(CT.SS >= 5) {//알람이 켜질 수 없는 시간대
 		if(MD.alarm_buzzing) {//그런데 알람이 울리다니!
 			MD.alarm_buzzing = false;
 		}
 		AL.snooze = true;//평소 값으로 계속 지정해주기
+		AL.ring = 0;
 	}
 	else {//알람이 켜질 수 있는 시간대
 		if(MD.alarm_buzzing) {//알람이 울리는 중
 			if(Selected_Button) {//버튼이 입력된 경우
 				MD.alarm_buzzing = false;
 				AL.snooze = false;//이번 사이클에서 알람을 끕니다
+				AL.ring = 0;
 			}
 			else {//no버튼인 경우
 				//그냥 넘어가면 됩니다
@@ -760,43 +747,28 @@ void Realtime_Manager(int Selected_Button) {
 						//그냥 넘어가면 됩니다
 						MD.alarm_buzzing = false;
 						AL.snooze = false;
+						AL.ring = 0;
 					}
 				}
 				else {//그런데 시간이 안 맞음
 					MD.alarm_buzzing = false;
 					AL.snooze = true;
+					AL.ring = 0;
 				}
 			}
 			else {//시간이 맞아도 알람이 울리면 안 됨
 				MD.alarm_buzzing = false;
 				AL.snooze = true;
+				AL.ring = 0;
 			}
 		}
 
 	}
 
-
-
-
-	/*
-	// 2. 자동으로 알람 끄기
-	if (MD.alarm_buzzing && CT.SS >= 5) // 알람이 울리는 중일 때 자동으로 끄는 코드
-		MD.alarm_buzzing = false; // 알람의 소리는 1. alarm_indicator == true일때, 2. alarm_Time == Current_Time일 때 켜진다.
-	// 알람이 켜지는 건 매 정각 분(xx분 00초)이고, 알람은 5초만 켜지므로, 현재 시간의 초가 5보다 클 때 알람을 자동으로 끄면 된다.
-	 */
 	//3. Backlight 조작하기
 	if(CT.HH==BC.BacklightTime.HH && CT.MM ==BC.BacklightTime.MM && CT.SS==BC.BacklightTime.SS){
 		BC.value = COLOR_DEF;
 	}
-
-	/*
-	//알람 buzzing모드 켜기
-	if (MD.alarm_indicator) {
-		if (CT.HH == AL.alarmTime.HH && CT.MM == AL.alarmTime.MM) { // 현재 시간과 알람 시간이 같은지 비교하는 과정
-			if (CT.SS < 5) MD.alarm_buzzing = true; // 현재 시간의 초가 5초 미만이면 알람 끄는것과 같은 논리로 알람이 울리고 있을 수밖에 없다.
-		}
-	}
-	*/
 }
 void show(int alpha_cat, char list[8][3], int blink_location) {
 	//alpha_cat는 대분류를 뜻합니다. 대분류에 따라 표시될 화면의 구성이 조금씩 다릅니다.
@@ -811,62 +783,27 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		list[blink_location - 1][1] = ' ';
 	}
 
-	gotoxy(20, 23); printf("%dsec %d", CT.SS, CT.MS);
-
 	if (alpha_cat == 1) {//Tikekeeping
 		gotoxy(12, 3); printf("%s    %s-%s/%s", list[0], list[7], list[1], list[2]);
 		gotoxy(7, 5); printf("%s", list[3]);
 		gotoxy(13, 6); printf("%s : %s . %s", list[4], list[5], list[6]);
-		/*
-		printf("        ####################\n");
-		printf("     ###                    ###\n");
-		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
-		printf("##                                ##\n");
-		printf("##    %s                          ##\n", list[3]);
-		printf("##          %s : %s . %s          ##\n", list[4], list[5], list[6]);
-		printf("  ###                          ###\n");
-		printf("     ###                    ###\n");
-		printf("        ####################\n");
-		*/
 	}
 	else if (alpha_cat == 2) {//Stopwatch
 		gotoxy(12, 3); printf("%s       %s:%s", list[0], list[1], list[2]);
-		gotoxy(7, 5); printf("%s", list[3]);
 		gotoxy(13, 6); printf("%s\'  %s\"  %s", list[4], list[5], list[6]);
-		/*
-		printf("        ####################\n");
-		printf("     ###                    ###\n");
-		printf("  ###      %s       %s:%s      ###\n", list[0], list[1], list[2]);
-		printf("##                                ##\n");
-		printf("##    %s                          ##\n", list[3]);
-		printf("##          %s\'  %s\"  %s          ##\n", list[4], list[5], list[6]);
-		printf("  ###                          ###\n");
-		printf("     ###                    ###\n");
-		printf("        ####################\n");
-		*/
 	}
 	else if (alpha_cat == 3) {//Alarm
 		gotoxy(12, 3); printf("%s       %s/%s", list[0], list[1], list[2]);
 		gotoxy(7, 5); printf("%s", list[3]);
 		gotoxy(13, 6); printf("%s : %s       ", list[4], list[5]);
-		/*
-		printf("        ####################\n");
-		printf("     ###                    ###\n");
-		printf("  ###      %s       %s/%s      ###\n", list[0], list[1], list[2]);
-		printf("##                                ##\n");
-		printf("##    %s                          ##\n", list[3]);
-		printf("##          %s : %s               ##\n", list[4], list[5]);
-		printf("  ###                          ###\n");
-		printf("     ###                    ###\n");
-		printf("        ####################\n");
-		*/
 	}
 }
 void Panel_and_Speaker_Controller() {
 	if (MD.alarm_buzzing) {
-		//if(!(CT.MS % 500)) {
+		if(AL.ring == CT.SS){
 			Alarm();
-		//}
+			AL.ring++;
+		}
 	}
 	int flag1 = MD.category_alpha;
 	int flag2 = MD.category_beta;
@@ -985,6 +922,7 @@ void Backlight_Controller(){ //색 변경
 	}
 }
 int main(){
+
 	init();
 	//테스트 구간. 아직 의미 X
 	int Selected_Button= 0;
