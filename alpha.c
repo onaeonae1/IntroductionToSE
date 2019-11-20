@@ -66,18 +66,8 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨.
 	ST.startTime.YY = 0, ST.startTime.MT = 0, ST.startTime.DD = 0, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0, ST.startTime.WD = -1;
 	ST.lapTime.YY = 0, ST.lapTime.MT = 0, ST.lapTime.DD = 0, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
 	ST.initialTime.YY = 0, ST.initialTime.MT = 0, ST.initialTime.DD = 0, ST.initialTime.HH = 0, ST.initialTime.MM = 0, ST.initialTime.SS = 0, ST.initialTime.MS = 0, ST.initialTime.WD = -1; // commint 안 됨
-	//show에 관한 초기화
-	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 9);
-	printf("        ####################\n");
-	printf("     ###                    ###\n");
-	printf("  ###                          ###\n");
-	printf("##                                ##\n");
-	printf("##                                ##\n");
-	printf("##                                ##\n");
-	printf("  ###                          ###\n");
-	printf("     ###                    ###\n");
-	printf("        ####################\n");
-	//글자 색 설정 : Backlight
+	//백라이트
+	Backlight_Controller(8);
 	BC.value = COLOR_DEF;
 	Backlight_Controller(BC.value);
 	BC.BacklightTime.YY = 0, BC.BacklightTime.MT = 0, BC.BacklightTime.DD = 0, BC.BacklightTime.HH = 0, BC.BacklightTime.MM = 0, BC.BacklightTime.SS = 0, BC.BacklightTime.MS = 0, BC.BacklightTime.WD = -1; // commint 안 됨
@@ -85,6 +75,17 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨.
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
 	//백라이트 초기화
+
+	//show에 관한 초기화
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###                          ###\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
 
 }
 int Button_Selector() {
@@ -126,15 +127,31 @@ int Button_Selector() {
 	//Selected Button : 0 = No button, 1 = A, 2 = B, 3 = C, 4 = D
 	return Selected_Button;
 }
-void Mode_Changer(mode Mode_to_Change){ //MD를 수정할 수 있는 함수
-	MD = Mode_to_Change; //값 복사
+void Mode_Changer(int location, int change){ //MD를 수정할 수 있는 함수, 0~4의 바꿀 위치와 바꿀 값을 인자로 받는다
+	//0 : Alarm Buzzing, 1 : 대분류, 2: 소분류 , 3 : Stopwatch_Indicator, 4 : Alarm indicator
+	switch(location) {
+	case 0:
+		MD.alarm_buzzing = change;
+		break;
+	case 1:
+		MD.category_alpha = change;
+		break;
+	case 2:
+		MD.category_beta = change;
+		break;
+	case 3:
+		MD.stopwatch_indicator = change;
+		break;
+	case 4:
+		MD.alarm_indicator = change;
+	}
 }
 int Button_Operator(int Selected_Button) {
 	Bool alarm_buzzing = MD.alarm_buzzing;
 	int category_alpha = MD.category_alpha;
 	int category_beta = MD.category_beta;
 	Bool stopwatch_indicator = MD.stopwatch_indicator;
-	//Bool alarm_indicator = MD.alarm_indicator;
+	Bool alarm_indicator = MD.alarm_indicator;
 
 	// 모드의 대분류(category_alpha)-소분류(category_beta)-Selected_Button 순서로 작성
 	//알람 울리기가 최우선
@@ -147,13 +164,13 @@ int Button_Operator(int Selected_Button) {
 			case 1: // 1.1 timekeeping
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 2;
+					Mode_Changer(2, 2);
 					break;
 				case 2: // B
 					break;
 				case 3: // C
-					MD.category_alpha = 2;
-					MD.category_beta = 1;
+					Mode_Changer(1, 2);
+					Mode_Changer(2, 1);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -173,7 +190,7 @@ int Button_Operator(int Selected_Button) {
 			case 2: // 1.2 timekeeping_change_sec
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (CT.SS == 59) TD.SS += 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -186,7 +203,7 @@ int Button_Operator(int Selected_Button) {
 					else ST.startTime.SS++;
 					break;
 				case 3: // C
-					MD.category_beta = 3;
+					Mode_Changer(2, 3);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -206,7 +223,7 @@ int Button_Operator(int Selected_Button) {
 			case 3: // 1.3 timekeeping_change_hr
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (CT.HH == 23) TD.HH += 23; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -219,7 +236,7 @@ int Button_Operator(int Selected_Button) {
 					else ST.startTime.HH++;
 					break;
 				case 3: // C
-					MD.category_beta = 4;
+					Mode_Changer(2, 4);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -239,7 +256,7 @@ int Button_Operator(int Selected_Button) {
 			case 4: // 1.4 timekeeping_change_min
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (CT.MM == 59) TD.MM += 59; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -252,7 +269,7 @@ int Button_Operator(int Selected_Button) {
 					else ST.startTime.MM++;
 					break;
 				case 3: // C
-					MD.category_beta = 5;
+					Mode_Changer(2, 5);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -271,7 +288,7 @@ int Button_Operator(int Selected_Button) {
 			case 5: // 1.5 timekeeping_change_yr
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (CT.YY == 99) TD.YY += 80; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -281,7 +298,7 @@ int Button_Operator(int Selected_Button) {
 					else ST.startTime.YY++;
 					break;
 				case 3: // C
-					MD.category_beta = 6;
+					Mode_Changer(2, 6);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -300,7 +317,7 @@ int Button_Operator(int Selected_Button) {
 			case 6: // 1.6 timekeeping_change_mnth
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (CT.MT == 12) TD.MT += 12; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -313,7 +330,7 @@ int Button_Operator(int Selected_Button) {
 					else ST.startTime.MT++;
 					break;
 				case 3: // C
-					MD.category_beta = 7;
+					Mode_Changer(2, 7);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -332,7 +349,7 @@ int Button_Operator(int Selected_Button) {
 			case 7: // 1.7 timekeeping_change_day
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					// 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -397,7 +414,7 @@ int Button_Operator(int Selected_Button) {
 					}
 					break;
 				case 3: // C
-					MD.category_beta = 2;
+					Mode_Changer(2, 2);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -458,13 +475,13 @@ int Button_Operator(int Selected_Button) {
 					}
 					else if (stopwatch_indicator == 1) {
 						ST.lapTime = ST.stopwatchTime;
-						MD.category_alpha = 2;
-						MD.category_beta = 2;
+						Mode_Changer(1, 2);
+						Mode_Changer(2, 2);
 					}
 					break;
 				case 2: // B
 					if (stopwatch_indicator == 0) {
-						MD.stopwatch_indicator = 1;
+						Mode_Changer(3, 1);
 						//stopwatchTime = CT - startTime + initialtime; (이 작업은 RTM에서 함)
 						ST.stopwatchTime.YY = 0;
 						ST.stopwatchTime.MT = 0;
@@ -483,7 +500,7 @@ int Button_Operator(int Selected_Button) {
 						ST.startTime.MS = CT.MS;
 					}
 					else if (stopwatch_indicator == 1) {
-						MD.stopwatch_indicator = 0;
+						Mode_Changer(3, 0);
 						// ST.initialTime = ST.stopwatchTime;
 						ST.initialTime.YY = ST.stopwatchTime.YY;
 						ST.initialTime.MT = ST.stopwatchTime.MT;
@@ -495,8 +512,8 @@ int Button_Operator(int Selected_Button) {
 					}
 					break;
 				case 3: // C
-					MD.category_alpha = 3;
-					MD.category_beta = 1;
+					Mode_Changer(1, 3);
+					Mode_Changer(2, 1);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -525,11 +542,11 @@ int Button_Operator(int Selected_Button) {
 					ST.lapTime.MS = ST.stopwatchTime.MS;
 					break;
 				case 2: // B
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 3: // C
-					MD.category_alpha = 3;
-					MD.category_beta = 1;
+					Mode_Changer(1, 3);
+					Mode_Changer(2, 1);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -554,14 +571,14 @@ int Button_Operator(int Selected_Button) {
 			case 1: // 3.1 alarm
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 2;
+					Mode_Changer(2, 2);
 					break;
 				case 2: // B
-					if(MD.alarm_indicator) MD.alarm_indicator = false;
-					else MD.alarm_indicator = true;
+					if(alarm_indicator) Mode_Changer(4, 0);
+					else Mode_Changer(4, 1);
 					break;
 				case 3: // C
-					MD.category_alpha = 1;
+					Mode_Changer(1, 1);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -581,14 +598,14 @@ int Button_Operator(int Selected_Button) {
 			case 2: // 3.2 alarm_change_hr
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (AL.alarmTime.HH == 23) AL.alarmTime.HH = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
 					else AL.alarmTime.HH++; // 알람 시작 시간 1 증가
 					break;
 				case 3: // C
-					MD.category_beta = 3;
+					Mode_Changer(2, 3);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -608,7 +625,7 @@ int Button_Operator(int Selected_Button) {
 			case 3: // alarm_change_min
 				switch (Selected_Button) {
 				case 1: // A
-					MD.category_beta = 1;
+					Mode_Changer(2, 1);
 					break;
 				case 2: // B
 					if (AL.alarmTime.MM == 59) AL.alarmTime.MM = 0; // 최대치가 된 상태에서 다시 입력하면 최저값으로
@@ -616,7 +633,7 @@ int Button_Operator(int Selected_Button) {
 					AL.alarmTime.MM++; // 알람 시작 분 1 증가
 					break;
 				case 3: // C
-					MD.category_beta = 2;
+					Mode_Changer(2, 2);
 					break;
 				case 4: // D, D버튼이 들어오면 BacklightTime을 현재 시간으로 한다. 나머지 역할은 RTM이 한다.
 					BC.value = COLOR_GRN;
@@ -797,11 +814,14 @@ void show(int alpha_cat, char list[8][3], int blink_location) {
 		gotoxy(13, 6); printf("%s : %s       ", list[4], list[5]);
 	}
 }
+void Ring_Changer() {
+	AL.ring++;
+}
 void Panel_and_Speaker_Controller() {
 	if (MD.alarm_buzzing) {
 		if(AL.ring == CT.SS){
 			Alarm();
-			AL.ring++;
+			Ring_Changer();
 		}
 	}
 	int flag1 = MD.category_alpha;
