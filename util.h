@@ -4,6 +4,7 @@
 #include<time.h>
 #include<sys/timeb.h>
 #include<string.h>
+//#include<MMSystem.h>
 #include"linux_kbhit.h"
 #include"getch.h"
 #define COLOR_DEF 12
@@ -33,6 +34,8 @@ typedef struct Time{
 }Time;
 typedef struct Alm{ //시작 시간
 	Time alarmTime;
+	int snooze; // snooze는 0 < SS < 5인 경우에서, Selected_Button이 0이 아닌 경우 잠시 false가 됩니다.(잠시 : SS < 5까지)
+	//이외의 경우에서는 계속 true가 대입됩니다.
 }alm;
 typedef struct StopWatch {
 	//LapTime은 StartTime을 기반으로 업데이트 된다.
