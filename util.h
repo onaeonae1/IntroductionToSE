@@ -7,7 +7,7 @@
 #include"linux_kbhit.h"
 #include"getch.h"
 #define COLOR_DEF 12
-#define COLOR_GRN 2
+#define COLOR_GRN 14
 //c에는 bool이 없다. 따라서 이렇게 열거형으로 만들어줘서 사용해야 함.
 typedef enum Boolean{
 	false=0,
