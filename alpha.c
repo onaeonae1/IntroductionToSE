@@ -66,26 +66,24 @@ void init() { //초기화. 프로그램 첫 실행시에 호출됨.
 	ST.startTime.YY = 0, ST.startTime.MT = 0, ST.startTime.DD = 0, ST.startTime.HH = 0, ST.startTime.MM = 0, ST.startTime.SS = 0, ST.startTime.MS = 0, ST.startTime.WD = -1;
 	ST.lapTime.YY = 0, ST.lapTime.MT = 0, ST.lapTime.DD = 0, ST.lapTime.HH = 0, ST.lapTime.MM = 0, ST.lapTime.SS = 0, ST.lapTime.MS = 0, ST.lapTime.WD = -1;
 	ST.initialTime.YY = 0, ST.initialTime.MT = 0, ST.initialTime.DD = 0, ST.initialTime.HH = 0, ST.initialTime.MM = 0, ST.initialTime.SS = 0, ST.initialTime.MS = 0, ST.initialTime.WD = -1; // commint 안 됨
+	//show에 관한 초기화
+	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 9);
+	printf("        ####################\n");
+	printf("     ###                    ###\n");
+	printf("  ###                          ###\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("##                                ##\n");
+	printf("  ###                          ###\n");
+	printf("     ###                    ###\n");
+	printf("        ####################\n");
 	//백라이트
-	Backlight_Controller(8);
 	BC.value = COLOR_DEF;
 	Backlight_Controller(BC.value);
 	BC.BacklightTime.YY = 0, BC.BacklightTime.MT = 0, BC.BacklightTime.DD = 0, BC.BacklightTime.HH = 0, BC.BacklightTime.MM = 0, BC.BacklightTime.SS = 0, BC.BacklightTime.MS = 0, BC.BacklightTime.WD = -1; // commint 안 됨
 	//모드 초기화
 	MD.alarm_buzzing = false, MD.alarm_indicator = false, MD.stopwatch_indicator = false;
 	MD.category_alpha = 1, MD.category_beta = 1;
-	//백라이트 초기화
-
-	//show에 관한 초기화
-	printf("        ####################\n");
-	printf("     ###                    ###\n");
-	printf("  ###                          ###\n");
-	printf("##                                ##\n");
-	printf("##                                ##\n");
-	printf("##                                ##\n");
-	printf("  ###                          ###\n");
-	printf("     ###                    ###\n");
-	printf("        ####################\n");
 
 }
 int Button_Selector() {
